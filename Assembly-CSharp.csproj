@@ -53,7 +53,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\SC_FPSController.cs" />
+     <Compile Include="Assets\Scripts\PC_FPSController.cs" />
+     <Compile Include="Assets\Scripts\PlayerMovement_FSM\MoveStates\PC_Airbourne.cs" />
+     <Compile Include="Assets\Scripts\PlayerMovement_FSM\MoveStates\PC_NullState.cs" />
+     <Compile Include="Assets\Scripts\PlayerMovement_FSM\MoveStates\PC_RunState.cs" />
+     <Compile Include="Assets\Scripts\PlayerMovement_FSM\PC_BaseState.cs" />
+     <Compile Include="Assets\Scripts\PlayerMovement_FSM\PC_MoveStateFactory.cs" />
  <Reference Include="UnityEditor.StandardEvents">
  <HintPath>C:/Users/kano/Documents/Projects/VitaGames/ZombieRunner/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
  </Reference>
