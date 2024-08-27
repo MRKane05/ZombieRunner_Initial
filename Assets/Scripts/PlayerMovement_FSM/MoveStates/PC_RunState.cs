@@ -13,7 +13,7 @@ public class PC_RunState : PC_BaseState {
 
 		if (!baseController.bIsGrounded())
         {
-			baseController.DoFall();
+			baseController.DoFall(true);
         }
 
 		CheckSwitchState();
@@ -26,6 +26,13 @@ public class PC_RunState : PC_BaseState {
 			Debug.Log("Doing Jump");
 			baseController.DoJump(Vector3.up);
 			SwitchState(factory.PCAirbourne());
+		}
+
+		if (baseController.bHitWall())
+        {
+			Debug.Log("Doing Wall Kick");
+			baseController.DoJump(Vector3.up);
+			SwitchState(factory.PCWallKick());
 		}
 	}
 }

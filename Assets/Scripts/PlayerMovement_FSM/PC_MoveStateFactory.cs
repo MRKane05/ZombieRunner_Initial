@@ -24,4 +24,14 @@ public class PC_MoveStateFactory {
 	{
 		return new PC_Airbourne(context, this);
 	}
+
+	public PC_BaseState PCWallKick()
+    {
+		return new PC_WallKick(context, this);
+    }
+
+	public PC_BaseState PCMantleState()
+	{
+		return new PC_Mantle(context, this);
+	}
 }

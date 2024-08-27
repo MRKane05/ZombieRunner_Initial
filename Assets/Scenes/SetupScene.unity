@@ -442,7 +442,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 508159798}
-  - component: {fileID: 508159797}
   - component: {fileID: 508159800}
   - component: {fileID: 508159799}
   m_Layer: 0
@@ -452,19 +451,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!136 &508159797
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 508159796}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 1.8
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &508159798
 Transform:
   m_ObjectHideFlags: 0
@@ -489,7 +475,7 @@ CharacterController:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Height: 2
+  m_Height: 1.8
   m_Radius: 0.5
   m_SlopeLimit: 45
   m_StepOffset: 0.3
@@ -515,6 +501,9 @@ MonoBehaviour:
   climbSpeed: 5
   jumpSpeed: 8
   gravity: 20
+  worldRaycastMask:
+    serializedVersion: 2
+    m_Bits: 1
   playerCamera: {fileID: 534669904}
   lookSpeed: 2
   lookXLimit: 45

@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-//The distinction here is that Airbourne branches into different states than running, so the player has to
-//jump to do a wallrun, they can't go from walking to wallrunning
-public class PC_Airbourne : PC_BaseState {
-	public PC_Airbourne(PC_FPSController currentContext, PC_MoveStateFactory playerStateFactory)
+//Wallkick should be the same as airbourne with the difference being that while in this state we cannot do
+//another wallkick
+public class PC_WallKick : PC_Airbourne {
+	public PC_WallKick(PC_FPSController currentContext, PC_MoveStateFactory playerStateFactory)
 		: base(currentContext, playerStateFactory)
 	{ }
 
+	
 	public override void UpdateState()
 	{
 		//For the moment lets just use our move functions
@@ -16,7 +17,7 @@ public class PC_Airbourne : PC_BaseState {
 
 		if (!baseController.bIsGrounded())	//This should be caught by our exit state, but is here as a bit of overprogramming
 		{
-			baseController.DoFall(true);
+			baseController.DoFall(false);
 		}
 
 		CheckSwitchState();
@@ -27,13 +28,6 @@ public class PC_Airbourne : PC_BaseState {
         {
 			SwitchState(factory.PCRunState());
         }
-
-		if (baseController.bHitWall())
-		{
-			Debug.Log("Doing Wall Kick");
-			baseController.DoJump(Vector3.up);
-			SwitchState(factory.PCWallKick());
-		}
 
 		Vector3 MantlePoint = baseController.MantlePoint();
 		if (MantlePoint != Vector3.zero)

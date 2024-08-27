@@ -20,11 +20,22 @@ public class PC_FPSController : MonoBehaviour
 
     public float jumpSpeed = 8.0f;
     public float gravity = 20.0f;
+
+    //A quick little bit of testing for our raycast colliders
+    float trickRayDist = 1f; //How far out do we test for raycasts in our world for the different tricks we'll be doing?
+
+    //Details for mantling
+    float mantleGrabHeight = 1.5f; //Above our zero
+    float mantleGrabDepth = 1f; //From in front of our character
+
+
+    public LayerMask worldRaycastMask;  //So we don't do tricks against the wrong thing
+
     public Camera playerCamera;
     public float lookSpeed = 2.0f;
     public float lookXLimit = 30f;
     public float lookYLimit = 45f;
-    public enum enPCMoveState { NULL, RUNNING, AIRBOURNE };
+    public enum enPCMoveState { NULL, RUNNING, AIRBOURNE, WALLKICK, MANTLE };
     public enPCMoveState PC_MoveState;
 
     public enPCMoveState PC_startingState;
@@ -38,18 +49,33 @@ public class PC_FPSController : MonoBehaviour
     Vector3 moveDirection = Vector3.zero;
     float rotationX = 0, rotationY = 0;
 
+    #region RunSetValues
+    protected Vector3 _mantlePoint;
+    public Vector3 GetSetMantlePoint { get { return _mantlePoint; }}
+    public float GetColliderHeight {  get { return characterController.height;  } }
+    #endregion
+
     [HideInInspector]
     public bool canMove = true; //Can't remember what this was for...
+
+    //Some stored details
+    float controllerHeight;
+    Vector3 cameraStartPosition;
+
+    float targetHeightScale = 1f;
+    float heightScale = 1f;
 
     void Start()
     {
         states = new PC_MoveStateFactory(this);
         // currentState = states.EnemyNullState();
-        Func<PC_BaseState>[] allStates = new Func<PC_BaseState>[] { states.PCNullState, states.PCRunState, states.PCAirbourne };
+        Func<PC_BaseState>[] allStates = new Func<PC_BaseState>[] { states.PCNullState, states.PCRunState, states.PCAirbourne, states.PCWallKick, states.PCMantleState };
         currentState = allStates[(int)PC_startingState]();
         currentState.EnterState();
 
         characterController = GetComponent<CharacterController>();
+        controllerHeight = characterController.height;
+        cameraStartPosition = playerCamera.transform.localPosition;
 
         // Lock cursor
         Cursor.lockState = CursorLockMode.Locked;
@@ -75,6 +101,13 @@ public class PC_FPSController : MonoBehaviour
     #endregion
 
     #region CharacterMoveFunctions
+
+    public void SetHeightScale(float toThis)
+    {
+        characterController.height = controllerHeight * toThis;
+        playerCamera.transform.localPosition = Vector3.Lerp(Vector3.zero, cameraStartPosition, toThis);
+    }
+
     public void DoFlatMove()
     {
         //PROBLEM: This will need to be replaced with a curve sample for our direction
@@ -105,15 +138,65 @@ public class PC_FPSController : MonoBehaviour
         return characterController.isGrounded;
     }
 
-    public void DoFall()
+    //For the moment (before we add spline controls) lets just do this
+    public Vector3 Char_Forward {  get { return Vector3.forward;  } }
+
+    public Vector3 Char_Right { get { return Vector3.right; } }
+
+    public bool bHitWall()
+    {
+        //I think that this is going to have to be a raycast...
+        RaycastHit hit;
+        // Does the ray intersect any objects excluding the player layer
+        if (Physics.Raycast(transform.position, Char_Forward, out hit, trickRayDist, worldRaycastMask))
+        {
+            return true; //We've hit an object
+        }
+        return false;   //No object hit
+    }
+
+    public Vector3 MantlePoint()
+    {
+        //Check our up reach
+        RaycastHit hit;
+        _mantlePoint = Vector3.zero;
+        if (Physics.Raycast(transform.position, Vector3.up, out hit, mantleGrabHeight, worldRaycastMask))
+        {
+            return Vector3.zero; //We're grabbing into a ceiling
+        }
+
+        //See if our grab goes over the lip of something
+        Vector3 mantleGrabReach = transform.position + Vector3.up * mantleGrabHeight;
+        
+        if (Physics.Raycast(mantleGrabReach, Char_Forward * mantleGrabDepth, out hit, mantleGrabHeight, worldRaycastMask))
+        {
+            return Vector3.zero; //We're not grabbing above an object
+        }
+
+        Vector3 mantleGrabLip = mantleGrabReach + Char_Forward * mantleGrabDepth;   //This is the point we cast down from to see if we're doing a mantle
+        if (Physics.Raycast(mantleGrabReach, -Vector3.up * mantleGrabHeight, out hit, mantleGrabHeight, worldRaycastMask))
+        {
+            _mantlePoint = hit.point;
+            return hit.point; //We're not grabbing above an object
+        }
+
+        return Vector3.zero;
+    }
+
+    public void DoFall(bool bCanControl)
     {
         //Lets get some jump control in here
-        if (moveDirection.y > 0 && !bJumpHeld())
+        if (moveDirection.y > 0 && !bJumpHeld() && bCanControl)
         {
             moveDirection.y -= gravity * Time.deltaTime * 3f;
         }
 
         moveDirection.y -= gravity * Time.deltaTime;
+    }
+
+    public void DoClimb()
+    {
+        characterController.Move((Vector3.up * climbSpeed + Vector3.forward * slowSpeed) * Time.deltaTime);
     }
     #endregion
 
@@ -134,6 +217,11 @@ public class PC_FPSController : MonoBehaviour
 
         //And I don't see why we can't just leave the camera controller here...
         ControlCamera();
+    }
+
+    void LateUpdate()
+    {
+
     }
     void OldUpdate()
     {
