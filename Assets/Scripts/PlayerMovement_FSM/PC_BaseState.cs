@@ -13,7 +13,9 @@ public class PC_BaseState {
         factory = playerStateFactory;
     }
 
-    public virtual void EnterState() { }
+    public virtual void EnterState() {
+        baseController.TargetHeightScale = 1f;
+    }
     public virtual void UpdateState() { }
     public virtual void PhysicsUpdateState() { }
     public virtual void ExitState() { }
@@ -25,7 +27,7 @@ public class PC_BaseState {
         ExitState();
         newState.EnterState();
         baseController.CurrentState = newState;
-        //Debug.Log("Player in State: " + newState);
+        Debug.Log("Player in State: " + newState);
     }
 
     public void SetStartState(PC_BaseState newState)

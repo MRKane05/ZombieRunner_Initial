@@ -17,7 +17,7 @@ public class PC_WallKick : PC_Airbourne {
 
 		if (!baseController.bIsGrounded())	//This should be caught by our exit state, but is here as a bit of overprogramming
 		{
-			baseController.DoFall(false);
+			baseController.DoFall(false, 1f);
 		}
 
 		CheckSwitchState();

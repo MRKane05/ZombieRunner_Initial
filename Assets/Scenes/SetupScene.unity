@@ -428,8 +428,8 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 420903563}
   m_LocalRotation: {x: -0, y: 0.07426952, z: -0, w: 0.9972382}
-  m_LocalPosition: {x: -3.42, y: 0.96, z: 28.89}
-  m_LocalScale: {x: 2, y: 2, z: 5}
+  m_LocalPosition: {x: -3.42, y: 2.9, z: 28.89}
+  m_LocalScale: {x: 0.74392, y: 7.055, z: 22.81}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 4
@@ -444,7 +444,7 @@ GameObject:
   - component: {fileID: 508159798}
   - component: {fileID: 508159800}
   - component: {fileID: 508159799}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: FPSCharacter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -521,7 +521,7 @@ GameObject:
   - component: {fileID: 534669905}
   - component: {fileID: 534669904}
   - component: {fileID: 534669903}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Main Camera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1114,7 +1114,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1410514122
 Transform:
   m_ObjectHideFlags: 0

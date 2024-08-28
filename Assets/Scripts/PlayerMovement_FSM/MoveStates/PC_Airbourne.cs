@@ -16,7 +16,7 @@ public class PC_Airbourne : PC_BaseState {
 
 		if (!baseController.bIsGrounded())	//This should be caught by our exit state, but is here as a bit of overprogramming
 		{
-			baseController.DoFall(true);
+			baseController.DoFall(true, 1f);
 		}
 
 		CheckSwitchState();
@@ -31,7 +31,7 @@ public class PC_Airbourne : PC_BaseState {
 		if (baseController.bHitWall())
 		{
 			Debug.Log("Doing Wall Kick");
-			baseController.DoJump(Vector3.up);
+			baseController.DoJump(0f, 1f);
 			SwitchState(factory.PCWallKick());
 		}
 
@@ -40,5 +40,11 @@ public class PC_Airbourne : PC_BaseState {
 		{
 			SwitchState(factory.PCMantleState());
 		}
+
+		//So logically we can enter our wallrun state from this one
+		float WallRunValue = baseController.WallOnSide();
+		if (WallRunValue != 0) {    //We can move into our wallrun state
+			SwitchState(factory.PCWallRunState());
+        }
 	}
 }

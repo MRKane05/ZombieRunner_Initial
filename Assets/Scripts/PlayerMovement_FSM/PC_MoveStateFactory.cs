@@ -34,4 +34,9 @@ public class PC_MoveStateFactory {
 	{
 		return new PC_Mantle(context, this);
 	}
+
+	public PC_WallRun PCWallRunState()
+    {
+		return new PC_WallRun(context, this);
+    }
 }

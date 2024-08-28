@@ -9,6 +9,11 @@ public class PC_Mantle : PC_BaseState {
 		: base(currentContext, playerStateFactory)
 	{ }
 
+	public override void EnterState()
+	{
+		baseController.TargetHeightScale = 0.3f;	//reduce our scale so that it'll give us the illusion of standing up after a mantle
+	}
+
 	public override void UpdateState()
 	{
 		//For the moment lets just use our move functions
