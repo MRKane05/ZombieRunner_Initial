@@ -22,7 +22,7 @@ public class PC_BaseState {
     public virtual void CheckSwitchState() { }
     protected void SwitchState(PC_BaseState newState)
     {
-
+        baseController.StateDisplay.text = newState.ToString();
         //Debug.Log("Enemy: " + ctx.gameObject.name + " SS: " + newState);
         ExitState();
         newState.EnterState();

@@ -7,13 +7,19 @@ public class PC_WallRun : PC_BaseState {
 	: base(currentContext, playerStateFactory)
 	{ }
 
+	float runTimer = 0;
+	float maxRunDuration = 1;
     public override void EnterState()
     {
 		base.EnterState();
-		baseController.DoJump(0f, 0.25f); //set our upward velocity to a small hop for the wallrun
-    }
+		runTimer = 0; //reset our wallrun timer
+
+		baseController.DoJump(0f, 0.33f); //set our upward velocity to a small hop for the wallrun
+		baseController.WallRunBias = baseController.WallOnSide();
+	}
 
     public override void UpdateState() {
+		runTimer += Time.deltaTime;
 		//For the moment lets just use our move functions
 		baseController.DoFlatMove();
 		float WallContact = baseController.WallOnSide();
@@ -24,10 +30,7 @@ public class PC_WallRun : PC_BaseState {
 			baseController.DoFall(false, 1f);	//Apply some gravity decay while we're wallrunning
         } else
         {
-			baseController.DoFall(false, 0.25f);
-			Debug.Log(baseController.WallRunBias);
-			baseController.WallRunBias += WallContact * Time.deltaTime;  //Give the player about 3 seconds of wallrun
-			Debug.Log(WallContact + ", " + baseController.WallRunBias);
+			baseController.DoFall(false, 0.125f);
 		}
 
 		CheckSwitchState();
@@ -51,12 +54,10 @@ public class PC_WallRun : PC_BaseState {
 		}
 
 		//See if we should fall out of our run
-		if (Mathf.Abs(baseController.WallRunBias) > 1f)
+		if (runTimer > maxRunDuration)
 		{
-			if (Mathf.Sign(baseController.WallRunBias) == Mathf.Sign(WallContact))	//Drop out of our wall run. We'll need a bit more handler logic here
-            {
-				SwitchState(factory.PCAirbourne());
-			}
+			Debug.Log("Wall run timed out");
+			SwitchState(factory.PCAirbourne());
 		}
 
 		if (WallContact == 0)

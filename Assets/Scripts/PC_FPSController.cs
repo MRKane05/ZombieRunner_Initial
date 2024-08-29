@@ -2,13 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 [RequireComponent(typeof(CharacterController))]
 
 public class PC_FPSController : MonoBehaviour
 {
 
-    public bool bClimbing = false;
+    bool bClimbing = false;
 
     public float slowSpeed = 7.5f;
     public float runningSpeed = 11.5f;
@@ -53,7 +54,7 @@ public class PC_FPSController : MonoBehaviour
     //A few little extra values to help with the sense of momentium
     float SideMomentum = 0;
     public float WallRunBias = 0; //Basically this value goes from -1 to 1 and increases while we're doing a wall run, or if we do a kick, thus dropping us out of a wall run or preventing wall hopping
-
+    public TextMeshProUGUI StateDisplay;
     #region RunSetValues
     protected Vector3 _mantlePoint;
     public Vector3 GetSetMantlePoint { get { return _mantlePoint; }}
