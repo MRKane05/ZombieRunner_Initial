@@ -225,7 +225,7 @@ public class PC_FPSController : MonoBehaviour
         Debug.DrawLine(mantleGrabReach, mantleGrabReach + Char_Forward * mantleGrabDepth, Color.red, 5f);
 
         Vector3 mantleGrabLip = mantleGrabReach + Char_Forward * mantleGrabDepth;   //This is the point we cast down from to see if we're doing a mantle
-        if (Physics.Raycast(mantleGrabReach, -Vector3.up * mantleGrabHeight, out hit, mantleGrabHeight, worldRaycastMask))
+        if (Physics.Raycast(mantleGrabLip, -Vector3.up * mantleGrabHeight, out hit, mantleGrabHeight, worldRaycastMask))
         {
             
             Debug.DrawLine(transform.position, transform.position + Vector3.up * mantleGrabHeight, Color.red, 5f);
