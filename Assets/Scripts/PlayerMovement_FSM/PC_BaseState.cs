@@ -27,7 +27,7 @@ public class PC_BaseState {
         ExitState();
         newState.EnterState();
         baseController.CurrentState = newState;
-        Debug.Log("Player in State: " + newState);
+        //Debug.Log("Player in State: " + newState);
     }
 
     public void SetStartState(PC_BaseState newState)

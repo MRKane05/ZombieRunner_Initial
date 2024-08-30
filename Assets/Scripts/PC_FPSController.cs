@@ -20,7 +20,7 @@ public class PC_FPSController : MonoBehaviour
     public float climbSpeed = 5f;
 
     public float jumpSpeed = 8.0f;
-    public float kickMomentum = 4.0f;
+    float kickMomentum = 10.0f;
     public float gravity = 20.0f;
 
     //A quick little bit of testing for our raycast colliders
@@ -128,7 +128,7 @@ public class PC_FPSController : MonoBehaviour
 
     public void HandleMomentumControl()
     {
-        kickMomentum = Mathf.MoveTowards(kickMomentum, 0, Time.deltaTime * 4f); //We may need to set a decay value for this somewhere
+        SideMomentum = Mathf.Lerp(SideMomentum, 0, Time.deltaTime); //We may need to set a decay value for this somewhere
     }
 
     public void DoFlatMove()
@@ -142,7 +142,8 @@ public class PC_FPSController : MonoBehaviour
         float moveSpeed = addEffort ? sprintingSpeed : Mathf.Lerp(slowSpeed, runningSpeed, Input.GetAxis("Vertical") * 0.5f + 0.5f);
 
         float curSpeedX = moveSpeed;
-        float curSpeedY = strafeSpeed * Input.GetAxis("Horizontal") + kickMomentum; //So we can move extra fast if we've done a side kick. What should our air control be?
+        float curSpeedY = strafeSpeed * Input.GetAxis("Horizontal") + SideMomentum; //So we can move extra fast if we've done a side kick. What should our air control be?
+        //PROBLEM: Should clamp the side momentium so that we can't do insaine move speeds. Or just leave it as it is
         float movementDirectionY = moveDirection.y; //A quick save to preserve values
         moveDirection = (forward * curSpeedX) + (right * curSpeedY);
         moveDirection.y = movementDirectionY;
@@ -154,7 +155,10 @@ public class PC_FPSController : MonoBehaviour
     public void DoJump(float sideMomentum, float scaleFactor)
     {
         moveDirection.y = jumpSpeed * scaleFactor;
-        SideMomentum = sideMomentum * kickMomentum;
+        if (sideMomentum != 0)  //Only apply momentum if we've got momentum
+        {
+            SideMomentum = sideMomentum * kickMomentum;
+        }
     }
 
     public bool bIsGrounded()
@@ -162,6 +166,7 @@ public class PC_FPSController : MonoBehaviour
         if (characterController.isGrounded)
         {
             WallRunBias = 0; //Reset our bias so we can wall run again
+            SideMomentum = 0; //Get our side momentium under control again
         }
         return characterController.isGrounded;
     }

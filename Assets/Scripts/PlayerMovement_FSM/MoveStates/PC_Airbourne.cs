@@ -44,6 +44,8 @@ public class PC_Airbourne : PC_BaseState {
 		//So logically we can enter our wallrun state from this one
 		float WallRunValue = baseController.WallOnSide();
 		if (WallRunValue != baseController.WallRunBias) {    //We can move into our wallrun state
+			//Debug.Log("Value: " + WallRunValue + " Bias: " + baseController.WallRunBias);
+			baseController.WallRunBias = WallRunValue;	//Really this should be set in the state itself
 			SwitchState(factory.PCWallRunState());
         }
 	}
