@@ -53,6 +53,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\Enemy_StrikeTriggerArea.cs" />
+     <Compile Include="Assets\Scripts\EnemyBehavior.cs" />
+     <Compile Include="Assets\Scripts\HUD\DamageIndicatorHandler.cs" />
      <Compile Include="Assets\Scripts\PC_FPSController.cs" />
      <Compile Include="Assets\Scripts\PlayerMovement_FSM\MoveStates\PC_Airbourne.cs" />
      <Compile Include="Assets\Scripts\PlayerMovement_FSM\MoveStates\PC_Mantle.cs" />
@@ -63,6 +66,7 @@
      <Compile Include="Assets\Scripts\PlayerMovement_FSM\PC_BaseState.cs" />
      <Compile Include="Assets\Scripts\PlayerMovement_FSM\PC_MoveStateFactory.cs" />
      <Compile Include="Assets\Scripts\PlayerRespawn.cs" />
+     <Compile Include="Assets\Scripts\RandomHighwaySpawner.cs" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface-Mobile.shader" />
      <None Include="Assets\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
      <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro_Properties.cginc" />

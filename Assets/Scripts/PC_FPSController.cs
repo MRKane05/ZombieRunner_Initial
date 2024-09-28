@@ -3,11 +3,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(CharacterController))]
 
 public class PC_FPSController : MonoBehaviour
 {
+
+    private static PC_FPSController instance = null;
+    public static PC_FPSController Instance { get { return instance; } }
+
+    public DamageIndicatorHandler ourDamageIndicator; //Really this should go through a UI handler, but for the moment...
+    public Image FollowIndicator; //Terrible form here too...
+    public GameObject DeadIndicator;
+
+    public float PlayerLeadTime = 3f;
 
     bool bClimbing = false;
 
@@ -48,6 +58,12 @@ public class PC_FPSController : MonoBehaviour
 
     CharacterController characterController;
 
+    //Handler components for our "stumble" which will affect us if we're hit, or trip over something
+    public float stumbleTime = 0;
+    public float stumbleMax = 1.5f; //This'll possibly be variable? I dunno
+    public AnimationCurve stumbleRecoveryCurve;
+    public float stumbleSpeedPenalty = 0.5f; //A multiplier that's compared against the stumble recovery curve to dictate our recovery
+
     Vector3 moveDirection = Vector3.zero;
     float rotationX = 0, rotationY = 0;
 
@@ -76,6 +92,20 @@ public class PC_FPSController : MonoBehaviour
     }
     float heightScale = 1f;
     float heightScaleSpeed = 5f;
+
+    bool bPlayerDead = false;
+
+	void Awake()
+	{
+		if (instance)
+		{
+			Debug.Log("Somehow there's a duplicate Player in the scene");
+			Debug.Log(gameObject.name);
+			return; //cancel this
+		}
+
+		instance = this;
+	}
 
     void Start()
     {
@@ -131,8 +161,15 @@ public class PC_FPSController : MonoBehaviour
         SideMomentum = Mathf.Lerp(SideMomentum, 0, Time.deltaTime); //We may need to set a decay value for this somewhere
     }
 
+    public float GetStumbleValue() {
+        stumbleTime -= Time.deltaTime;
+        stumbleTime = Mathf.Clamp(stumbleTime, 0f, stumbleMax);
+        return Mathf.Lerp(stumbleSpeedPenalty, 1f, stumbleRecoveryCurve.Evaluate(stumbleTime/stumbleMax));
+    }
+    
     public void DoFlatMove()
     {
+        if (bPlayerDead) {return;}
         //PROBLEM: This will need to be replaced with a curve sample for our direction
         Vector3 forward = transform.TransformDirection(Vector3.forward);
         Vector3 right = transform.TransformDirection(Vector3.right);
@@ -143,6 +180,24 @@ public class PC_FPSController : MonoBehaviour
 
         float curSpeedX = moveSpeed;
         float curSpeedY = strafeSpeed * Input.GetAxis("Horizontal") + SideMomentum; //So we can move extra fast if we've done a side kick. What should our air control be?
+        //Add in our stumble effect
+        float stumbleValue = GetStumbleValue();
+        curSpeedX *= stumbleValue;
+        curSpeedY *= stumbleValue;
+
+        //We need to check our speed and adjust our leadTime accordingly
+        //PROBLEM: This lead timer doesn't take into account actual movement, and any cool stuff we might be doing with Parkour
+        PlayerLeadTime += (curSpeedX - (slowSpeed + runningSpeed) * 0.5f) * Time.deltaTime;  //The crazy lazy way
+        
+        
+        if (PlayerLeadTime <= 0) {
+            DeadIndicator.SetActive(true);
+            bPlayerDead = true; //Kill our player
+        }
+
+        PlayerLeadTime = Mathf.Clamp(PlayerLeadTime, 0, 5); //So we can't get too much of a lead!
+
+
         //PROBLEM: Should clamp the side momentium so that we can't do insaine move speeds. Or just leave it as it is
         float movementDirectionY = moveDirection.y; //A quick save to preserve values
         moveDirection = (forward * curSpeedX) + (right * curSpeedY);
@@ -222,16 +277,17 @@ public class PC_FPSController : MonoBehaviour
         {
             return Vector3.zero; //We're not grabbing above an object
         }
-        Debug.DrawLine(mantleGrabReach, mantleGrabReach + Char_Forward * mantleGrabDepth, Color.red, 5f);
+        //Debug.DrawLine(mantleGrabReach, mantleGrabReach + Char_Forward * mantleGrabDepth, Color.red, 5f);
 
         Vector3 mantleGrabLip = mantleGrabReach + Char_Forward * mantleGrabDepth;   //This is the point we cast down from to see if we're doing a mantle
         if (Physics.Raycast(mantleGrabLip, -Vector3.up * mantleGrabHeight, out hit, mantleGrabHeight, worldRaycastMask))
         {
-            
+            /*
             Debug.DrawLine(transform.position, transform.position + Vector3.up * mantleGrabHeight, Color.red, 5f);
             Debug.DrawLine(mantleGrabReach, mantleGrabReach + Char_Forward * mantleGrabDepth, Color.red, 5f);
             Debug.DrawLine(mantleGrabLip, hit.point, Color.red, 5f);
             Debug.Log(hit.collider.gameObject.name);
+            */
             
             _mantlePoint = hit.point;
             return hit.point; //We're not grabbing above an object
@@ -278,66 +334,32 @@ public class PC_FPSController : MonoBehaviour
         HandleMomentumControl();
         //And I don't see why we can't just leave the camera controller here...
         ControlCamera();
-    }
+        AdjustFollowDisplay();
 
-    void LateUpdate()
-    {
-        
-    }
-    void OldUpdate()
-    {
-        // We are grounded, so recalculate move direction based on axes
-        Vector3 forward = transform.TransformDirection(Vector3.forward);
-        Vector3 right = transform.TransformDirection(Vector3.right);
-        // Press Left Shift to run
-        bool addEffort = Input.GetKey(KeyCode.LeftShift);
-        float moveSpeed = addEffort ? sprintingSpeed : Mathf.Lerp(slowSpeed, runningSpeed, Input.GetAxis("Vertical") * 0.5f + 0.5f);
-        
-        float curSpeedX = canMove ? moveSpeed : 0;
-        float curSpeedY = canMove ? strafeSpeed * Input.GetAxis("Horizontal") : 0;
-        float movementDirectionY = moveDirection.y;
-        moveDirection = (forward * curSpeedX) + (right * curSpeedY);
-
-        if (!bClimbing)
-        {
-            if (Input.GetButton("Jump") && canMove && characterController.isGrounded)
-            {
-                moveDirection.y = jumpSpeed;
+        if (bPlayerDead) {
+            if (Input.GetKey(KeyCode.Return)) {
+                bPlayerDead = false;
+                DeadIndicator.SetActive(false);
+                //Respawn our player
+                gameObject.transform.position = Vector3.up;
+                PlayerLeadTime = 3f;
             }
-            else
-            {
-                moveDirection.y = movementDirectionY;
-            }
-
-            // Apply gravity. Gravity is multiplied by deltaTime twice (once here, and once below
-            // when the moveDirection is multiplied by deltaTime). This is because gravity should be applied
-            // as an acceleration (ms^-2)
-            if (!characterController.isGrounded)
-            {
-                moveDirection.y -= gravity * Time.deltaTime;
-            }
-
-            // Move the controller
-            characterController.Move(moveDirection * Time.deltaTime);
-        } else
-        {
-            characterController.Move((Vector3.up * climbSpeed + Vector3.forward * slowSpeed) * Time.deltaTime);
-        }
-
-        // Player and Camera rotation
-        if (canMove)
-        {
-            //So the idea behind our runner is to have something that'll have the camera looking as though we're still running in a stright line
-
-            rotationX += -Input.GetAxis("Mouse Y") * lookSpeed;
-            rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
-            rotationY += Input.GetAxis("Mouse X") * lookSpeed;
-            rotationY = Mathf.Clamp(rotationY, -lookYLimit, lookYLimit);
-            playerCamera.transform.localRotation = Quaternion.Euler(rotationX, rotationY, 0);
-            //playerCamera.transform.localRotation *= Quaternion.Euler(0, Input.GetAxis("Mouse X") * lookSpeed, 0);
-            //transform.rotation *= Quaternion.Euler(0, Input.GetAxis("Mouse X") * lookSpeed, 0);
         }
     }
+
+    void AdjustFollowDisplay() {
+        FollowIndicator.GetComponent<RectTransform>().sizeDelta = new Vector2(FollowIndicator.GetComponent<RectTransform>().sizeDelta.x, Mathf.Lerp(400f, 100f, PlayerLeadTime / 3f));
+    }
+
+    //This might need more information passed through at some stage, but we're starting with a MVP here
+    public void EnemyHitPlayer(GameObject Instigator) {
+
+        ourDamageIndicator.TakeDamage(Instigator.transform.position.x > gameObject.transform.position.x);
+        //This needs to put in place a hit effect, and also a speed penalty
+        //Essentially this is a "stumble"
+        stumbleTime = stumbleMax;
+    }
+
 
     #region LadderFunctions
     void OnTriggerEnter(Collider other)
