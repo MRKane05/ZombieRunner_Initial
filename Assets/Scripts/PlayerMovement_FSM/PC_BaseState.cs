@@ -23,11 +23,10 @@ public class PC_BaseState {
     protected void SwitchState(PC_BaseState newState)
     {
         baseController.StateDisplay.text = newState.ToString();
-        //Debug.Log("Enemy: " + ctx.gameObject.name + " SS: " + newState);
         ExitState();
         newState.EnterState();
         baseController.CurrentState = newState;
-        //Debug.Log("Player in State: " + newState);
+        Debug.Log("Player in State: " + newState);
     }
 
     public void SetStartState(PC_BaseState newState)

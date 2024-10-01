@@ -27,7 +27,7 @@ public class EnemyBehavior : MonoBehaviour {
 		DoEnemyMove();	//Move our enemy towards our player
 		//PickEnemyFrame(); //Our enemies will play a "grab" animation when they're close
 		//If we're behind the player we should "re-drop" forward of the player somewhere to be an enemy a second time around (same as if we die)
-		if (PC_FPSController.Instance.gameObject.transform.position.z > gameObject.transform.position.z) {
+		if (PC_FPSController.Instance.gameObject.transform.position.z > gameObject.transform.position.z || gameObject.transform.position.z - PC_FPSController.Instance.gameObject.transform.position.z > 50) {
 			ReDropEnemy();
 		}
 	}

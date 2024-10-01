@@ -127,7 +127,11 @@ public class PC_FPSController : MonoBehaviour
     #region InputMethodsForFSM
     public bool bJumpPressed()
     {
+        #if UNITY_EDITOR
         return Input.GetKeyDown(KeyCode.Space);
+        #else
+        return Input.GetButtonDown("Cross");
+        #endif
         //return Input.GetButtonDown("Jump");
     }
 
@@ -180,6 +184,13 @@ public class PC_FPSController : MonoBehaviour
 
         float curSpeedX = moveSpeed;
         float curSpeedY = strafeSpeed * Input.GetAxis("Horizontal") + SideMomentum; //So we can move extra fast if we've done a side kick. What should our air control be?
+
+//Vita Control injection      
+#if !UNITY_EDITOR
+        moveSpeed = addEffort ? sprintingSpeed : Mathf.Lerp(slowSpeed, runningSpeed, Input.GetAxis("Left Stick Vertical") * 0.5f + 0.5f);  
+        curSpeedY = strafeSpeed * Input.GetAxis("Left Stick Horizontal") + SideMomentum; //So we can move extra fast if we've done a side kick. What should our air control be?
+#endif
+
         //Add in our stumble effect
         float stumbleValue = GetStumbleValue();
         curSpeedX *= stumbleValue;
@@ -282,12 +293,12 @@ public class PC_FPSController : MonoBehaviour
         Vector3 mantleGrabLip = mantleGrabReach + Char_Forward * mantleGrabDepth;   //This is the point we cast down from to see if we're doing a mantle
         if (Physics.Raycast(mantleGrabLip, -Vector3.up * mantleGrabHeight, out hit, mantleGrabHeight, worldRaycastMask))
         {
-            /*
-            Debug.DrawLine(transform.position, transform.position + Vector3.up * mantleGrabHeight, Color.red, 5f);
-            Debug.DrawLine(mantleGrabReach, mantleGrabReach + Char_Forward * mantleGrabDepth, Color.red, 5f);
-            Debug.DrawLine(mantleGrabLip, hit.point, Color.red, 5f);
-            Debug.Log(hit.collider.gameObject.name);
-            */
+            
+            Debug.DrawLine(transform.position, transform.position + Vector3.up * mantleGrabHeight, Color.red, 15f);
+            Debug.DrawLine(mantleGrabReach, mantleGrabReach + Char_Forward * mantleGrabDepth, Color.red, 15f);
+            Debug.DrawLine(mantleGrabLip, hit.point, Color.red, 15f);
+            //Debug.Log(hit.collider.gameObject.name);
+            
             
             _mantlePoint = hit.point;
             return hit.point; //We're not grabbing above an object
@@ -319,8 +330,14 @@ public class PC_FPSController : MonoBehaviour
     void ControlCamera()
     {
         rotationX += -Input.GetAxis("Mouse Y") * lookSpeed;
+        //Add in our VitaControls
+        rotationX += Input.GetAxis("Right Stick Vertical") * 100f * Time.deltaTime;
+
         rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
         rotationY += Input.GetAxis("Mouse X") * lookSpeed;
+        //More proxy Vita Controls
+        rotationY += Input.GetAxis ("Right Stick Horizontal") * 100f * Time.deltaTime;
+
         rotationY = Mathf.Clamp(rotationY, -lookYLimit, lookYLimit);
         playerCamera.transform.localRotation = Quaternion.Euler(rotationX, rotationY, 0);
     }
@@ -337,7 +354,7 @@ public class PC_FPSController : MonoBehaviour
         AdjustFollowDisplay();
 
         if (bPlayerDead) {
-            if (Input.GetKey(KeyCode.Return)) {
+            if (Input.GetKey(KeyCode.Return) || Input.GetButton("Circle")) {
                 bPlayerDead = false;
                 DeadIndicator.SetActive(false);
                 //Respawn our player
@@ -364,20 +381,20 @@ public class PC_FPSController : MonoBehaviour
     #region LadderFunctions
     void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Got Trigger Enter");
+        //Debug.Log("Got Trigger Enter");
         if (other.gameObject.layer == 9)    //PROBLEM: nasty hack to check for the climbable layer
         {
-            Debug.Log("Collided with object" + other.gameObject.name);
+            //Debug.Log("Collided with object" + other.gameObject.name);
             // Additional logic for handling the trigger
             bClimbing = true;
         }
     }
     void OnTriggerExit(Collider other)
     {
-        Debug.Log("Got Trigger Enter");
+        //Debug.Log("Got Trigger Enter");
         if (other.gameObject.layer == 9)    //PROBLEM: nasty hack to check for the climbable layer
         {
-            Debug.Log("Collided with object" + other.gameObject.name);
+            //Debug.Log("Collided with object" + other.gameObject.name);
             // Additional logic for handling the trigger
             bClimbing = false;
         }
