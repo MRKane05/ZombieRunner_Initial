@@ -2256,6 +2256,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 045f4544d76f5fe40a2cf621578cf6f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  pathCreator: {fileID: 1693565660}
   ourDamageIndicator: {fileID: 1362589501}
   FollowIndicator: {fileID: 289736106}
   DeadIndicator: {fileID: 2120080145}
@@ -8048,7 +8049,7 @@ MonoBehaviour:
       - 0
       globalNormalsAngle: 0
       flipNormals: 0
-    vertexPathUpToDate: 0
+    vertexPathUpToDate: 1
     vertexPathMaxAngleError: 0.3
     vertexPathMinVertexSpacing: 0.01
     showTransformTool: 1

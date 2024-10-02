@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using PathCreation;
 
 [RequireComponent(typeof(CharacterController))]
 
@@ -13,6 +14,9 @@ public class PC_FPSController : MonoBehaviour
     private static PC_FPSController instance = null;
     public static PC_FPSController Instance { get { return instance; } }
 
+    public PathCreator pathCreator;
+
+    //PROBLEM: This UI stuff needs fixed up
     public DamageIndicatorHandler ourDamageIndicator; //Really this should go through a UI handler, but for the moment...
     public Image FollowIndicator; //Terrible form here too...
     public GameObject DeadIndicator;
@@ -64,7 +68,7 @@ public class PC_FPSController : MonoBehaviour
     public AnimationCurve stumbleRecoveryCurve;
     public float stumbleSpeedPenalty = 0.5f; //A multiplier that's compared against the stumble recovery curve to dictate our recovery
 
-    Vector3 moveDirection = Vector3.zero;
+    Vector3 moveDirection = Vector3.forward;
     float rotationX = 0, rotationY = 0;
 
     //A few little extra values to help with the sense of momentium
@@ -170,13 +174,27 @@ public class PC_FPSController : MonoBehaviour
         stumbleTime = Mathf.Clamp(stumbleTime, 0f, stumbleMax);
         return Mathf.Lerp(stumbleSpeedPenalty, 1f, stumbleRecoveryCurve.Evaluate(stumbleTime/stumbleMax));
     }
+
+    public Vector3 getForwardDirection()
+    {
+        if (!pathCreator)
+        {
+            Debug.LogError("No assigned path on the player controller!");
+            return Vector3.forward;
+        }
+        float pathTime = pathCreator.path.GetClosestTimeOnPath(gameObject.transform.position);
+        //float distance = pathCreator.path.GetClosestDistanceAlongPath(gameObject.transform.position);
+        //we really only  need the path normal for this
+        Vector3 pathHeading = pathCreator.path.GetDirection(pathTime); // (distance, EndOfPathInstruction.Stop);
+        return pathHeading; //We assume that this is forward
+    }
     
     public void DoFlatMove()
     {
         if (bPlayerDead) {return;}
         //PROBLEM: This will need to be replaced with a curve sample for our direction
-        Vector3 forward = transform.TransformDirection(Vector3.forward);
-        Vector3 right = transform.TransformDirection(Vector3.right);
+        Vector3 forward = getForwardDirection(); // transform.TransformDirection(Vector3.forward);
+        Vector3 right = Quaternion.AngleAxis(90f, Vector3.up)*forward; //transform.TransformDirection(Vector3.right);
 
         bool addEffort = bAddEffort();
 
@@ -215,6 +233,9 @@ public class PC_FPSController : MonoBehaviour
         moveDirection.y = movementDirectionY;
 
         characterController.Move(moveDirection * Time.deltaTime);   //Actually do our move
+
+        //We'd be wise to align our character to the movement direction here too (as it'll fix forward issues)
+        gameObject.transform.LookAt(gameObject.transform.position + forward * 3f, Vector3.up);
     }
 
     //The jump direction in this case is for jumping off a wall. We'll get to that
