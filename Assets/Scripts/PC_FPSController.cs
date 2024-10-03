@@ -99,7 +99,14 @@ public class PC_FPSController : MonoBehaviour
 
     bool bPlayerDead = false;
 
-	void Awake()
+    //Details that are used to calculate where we are along our path:
+    float bestDistance = 0;
+    float bestTime = 0;
+    float moveSpeed = 0; //Stored here so that we can used it without having to do a square distance on a prior position
+    Vector3 priorForward = Vector3.forward; //What was our former forward vector?
+
+
+    void Awake()
 	{
 		if (instance)
 		{
@@ -111,6 +118,7 @@ public class PC_FPSController : MonoBehaviour
 		instance = this;
 	}
 
+    Vector3 StartPosition = Vector3.zero;
     void Start()
     {
         states = new PC_MoveStateFactory(this);
@@ -126,6 +134,12 @@ public class PC_FPSController : MonoBehaviour
         // Lock cursor
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        StartPosition = gameObject.transform.position;
+
+        //Handle our curve position
+        bestTime = pathCreator.path.GetClosestTimeOnPath(gameObject.transform.position);  //This is actually well optimised...
+        bestDistance = pathCreator.path.GetClosestDistanceAlongPath(gameObject.transform.position);
     }
 
     #region InputMethodsForFSM
@@ -175,6 +189,9 @@ public class PC_FPSController : MonoBehaviour
         return Mathf.Lerp(stumbleSpeedPenalty, 1f, stumbleRecoveryCurve.Evaluate(stumbleTime/stumbleMax));
     }
 
+
+
+    //PROBLEM: This can't be hammered every frame as it causes a massive drop in FPS. The "find closest time on path" is fine on PC but it drills the Vita FPS down like a bitch
     public Vector3 getForwardDirection()
     {
         if (!pathCreator)
@@ -182,10 +199,29 @@ public class PC_FPSController : MonoBehaviour
             Debug.LogError("No assigned path on the player controller!");
             return Vector3.forward;
         }
-        float pathTime = pathCreator.path.GetClosestTimeOnPath(gameObject.transform.position);
-        //float distance = pathCreator.path.GetClosestDistanceAlongPath(gameObject.transform.position);
-        //we really only  need the path normal for this
-        Vector3 pathHeading = pathCreator.path.GetDirection(pathTime); // (distance, EndOfPathInstruction.Stop);
+
+        //So I think I need a new approach. We'll get the time to kick off with, and then go off of distance with a guess based off of how fast we're travelling, and a bit of wriggle ahead/behind then take the closest as gospel
+        float distanceGuess = bestDistance + moveSpeed * Time.deltaTime;
+        bestDistance = distanceGuess;
+        float bestDistanceSpan = Vector3.SqrMagnitude(gameObject.transform.position-pathCreator.path.GetPointAtDistance(distanceGuess));
+
+        float distanceRange = moveSpeed * Time.deltaTime *0.5f; //how far we'll shift with each check. This should be self-correcting
+        for (int i = -1; i<2; i++)
+        {
+            if (i != 0) //We've already got this point
+            { 
+                float offsetDistance = distanceGuess + i * distanceRange;
+                float newDistanceSpan = Vector3.SqrMagnitude(gameObject.transform.position - pathCreator.path.GetPointAtDistance(offsetDistance));
+                if (newDistanceSpan < bestDistanceSpan) //If we're closer to the line reset our best settings
+                {
+                    bestDistance = offsetDistance;
+                    bestDistanceSpan = newDistanceSpan;
+                }
+            }
+        }
+
+        //we really only  need the path normal for our heading
+        Vector3 pathHeading = pathCreator.path.GetDirectionAtDistance(bestDistance); // .GetDirection(bestTime); // (distance, EndOfPathInstruction.Stop);
         return pathHeading; //We assume that this is forward
     }
     
@@ -198,7 +234,7 @@ public class PC_FPSController : MonoBehaviour
 
         bool addEffort = bAddEffort();
 
-        float moveSpeed = addEffort ? sprintingSpeed : Mathf.Lerp(slowSpeed, runningSpeed, Input.GetAxis("Vertical") * 0.5f + 0.5f);
+        moveSpeed = addEffort ? sprintingSpeed : Mathf.Lerp(slowSpeed, runningSpeed, Input.GetAxis("Vertical") * 0.5f + 0.5f);
 
         float curSpeedX = moveSpeed;
         float curSpeedY = strafeSpeed * Input.GetAxis("Horizontal") + SideMomentum; //So we can move extra fast if we've done a side kick. What should our air control be?
@@ -379,7 +415,7 @@ public class PC_FPSController : MonoBehaviour
                 bPlayerDead = false;
                 DeadIndicator.SetActive(false);
                 //Respawn our player
-                gameObject.transform.position = Vector3.up;
+                gameObject.transform.position = StartPosition;
                 PlayerLeadTime = 3f;
             }
         }
