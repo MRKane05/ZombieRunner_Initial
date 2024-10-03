@@ -14,6 +14,8 @@ public class EnemyBehavior : MonoBehaviour {
 	public float dash_radius = 7f;	//At what point do we speed up?
 
 	public float attention_radius = 15f; //If our player is outside of this range we just do Zombie stuff
+	public Animator targetCharacter;
+
 
 	// Update is called once per frame
 
@@ -32,9 +34,13 @@ public class EnemyBehavior : MonoBehaviour {
 		}
 	}
 
-	//Don't know why we need to know this, but meh - it's handy
 	public void HitPlayer() {
-
+		//Play our animation stuff for hitting our player. This'll also have to be reflective of our current animation state
+		//PROBLEM: Take into account player actions when doing this
+		if (targetCharacter)
+        {
+			targetCharacter.SetTrigger("ZombieStrike");	//Do our strike animation
+		}
 	}
 
 
@@ -74,23 +80,26 @@ public class EnemyBehavior : MonoBehaviour {
 	}
 
 	public void DoEnemyMove()
-		{
-			//PROBLEM: This will need to be replaced with a curve sample for our direction
-			Vector3 forward = transform.TransformDirection(Vector3.forward);
-			Vector3 right = transform.TransformDirection(Vector3.right);
-			Vector3 playerDir = PC_FPSController.Instance.gameObject.transform.position - gameObject.transform.position;
-			float distToPlayer = playerDir.magnitude;
-			if (distToPlayer > attention_radius) {
-				return; //Don't movie our zombie, save some process
-			}
-
-			playerDir.y = 0; //Flatten our movement so we don't fly...
-			playerDir = playerDir.normalized;
-			float moveSpeed = distToPlayer > dash_radius ? speed_amble : speed_dash;
-
-			Vector3 moveDirection = playerDir * moveSpeed;	//Get the net of how we should be ambling
-
-			characterController.Move(moveDirection * Time.deltaTime);   //Actually do our move
+	{
+		//PROBLEM: This will need to be replaced with a curve sample for our direction
+		Vector3 forward = transform.TransformDirection(Vector3.forward);
+		Vector3 right = transform.TransformDirection(Vector3.right);
+		Vector3 playerDir = PC_FPSController.Instance.gameObject.transform.position - gameObject.transform.position;
+		float distToPlayer = playerDir.magnitude;
+		if (distToPlayer > attention_radius) {
+			return; //Don't movie our zombie, save some process
 		}
+
+		playerDir.y = 0; //Flatten our movement so we don't fly...
+		playerDir = playerDir.normalized;
+		//It's actually a little pointless to have these different speeds as the player doesn't get to see it
+		float moveSpeed = speed_amble; // distToPlayer > dash_radius ? speed_amble : speed_dash;
+
+		Vector3 moveDirection = playerDir * moveSpeed;	//Get the net of how we should be ambling
+
+		characterController.Move(moveDirection * Time.deltaTime);   //Actually do our move
+																	//We need to point our enemy at our player
+		gameObject.transform.LookAt(PC_FPSController.Instance.gameObject.transform.position, Vector3.up);
+	}
 
 }
