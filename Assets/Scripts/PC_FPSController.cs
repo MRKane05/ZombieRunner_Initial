@@ -100,7 +100,8 @@ public class PC_FPSController : MonoBehaviour
     bool bPlayerDead = false;
 
     //Details that are used to calculate where we are along our path:
-    float bestDistance = 0;
+    [HideInInspector]
+    public float bestDistance = 0;
     float bestTime = 0;
     float moveSpeed = 0; //Stored here so that we can used it without having to do a square distance on a prior position
     Vector3 priorForward = Vector3.forward; //What was our former forward vector?

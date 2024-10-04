@@ -26,12 +26,17 @@ public class EnemyBehavior : MonoBehaviour {
 	}
 
 	public void Update() {
-		DoEnemyMove();	//Move our enemy towards our player
-		//PickEnemyFrame(); //Our enemies will play a "grab" animation when they're close
-		//If we're behind the player we should "re-drop" forward of the player somewhere to be an enemy a second time around (same as if we die)
-		if (PC_FPSController.Instance.gameObject.transform.position.z > gameObject.transform.position.z || gameObject.transform.position.z - PC_FPSController.Instance.gameObject.transform.position.z > 50) {
+		DoEnemyMove();  //Move our enemy towards our player
+						//PickEnemyFrame(); //Our enemies will play a "grab" animation when they're close
+						//If we're behind the player we should "re-drop" forward of the player somewhere to be an enemy a second time around (same as if we die)
+						//if (PC_FPSController.Instance.gameObject.transform.position.z > gameObject.transform.position.z || gameObject.transform.position.z - PC_FPSController.Instance.gameObject.transform.position.z > 50) {
+						//So we need a smarter way to tell if we're behind our player...
+		//Debug.Log(Vector3.Dot(PC_FPSController.Instance.gameObject.transform.forward, Vector3.Normalize(PC_FPSController.Instance.gameObject.transform.position - gameObject.transform.position)));
+		
+		if (Vector3.Dot(PC_FPSController.Instance.gameObject.transform.forward, Vector3.Normalize(gameObject.transform.position - PC_FPSController.Instance.gameObject.transform.position)) < -0.5f) { 
 			ReDropEnemy();
 		}
+		
 	}
 
 	public void HitPlayer() {
@@ -46,6 +51,10 @@ public class EnemyBehavior : MonoBehaviour {
 
 	public void ReDropEnemy() {
 		Debug.Log("Doing Enemy redrop");
+		Vector3 dropPoint = LevelController.Instance.GetEnemyDropPoint(redropMask);
+		RespawnEnemy(dropPoint);
+
+		/*
 		//Find somewhere forward of our player. For the moment things are straight.
 		bool bFoundDropPoint = false;
 		int cycles = 0;
@@ -71,6 +80,7 @@ public class EnemyBehavior : MonoBehaviour {
 			}
 			cycles++; //Increment our cycles up so we've got an out. I should write something in here to make the randoms wider the higher the count gets
 		}
+		*/
 
 	}
 
