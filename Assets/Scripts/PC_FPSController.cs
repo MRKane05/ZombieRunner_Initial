@@ -73,7 +73,12 @@ public class PC_FPSController : MonoBehaviour
 
     //A few little extra values to help with the sense of momentium
     float SideMomentum = 0;
+    [HideInInspector]
     public float WallRunBias = 0; //Basically this value goes from -1 to 1 and increases while we're doing a wall run, or if we do a kick, thus dropping us out of a wall run or preventing wall hopping
+    [HideInInspector]
+    public Vector3 LastWallNormal = Vector3.zero;
+    [HideInInspector]
+    public Vector3 WallHitNormal = Vector3.zero;
     public TextMeshProUGUI StateDisplay;
     #region RunSetValues
     protected Vector3 _mantlePoint;
@@ -98,6 +103,7 @@ public class PC_FPSController : MonoBehaviour
     float heightScaleSpeed = 5f;
 
     bool bPlayerDead = false;
+    public bool bPlayerInvincible = false;
 
     //Details that are used to calculate where we are along our path:
     [HideInInspector]
@@ -146,11 +152,11 @@ public class PC_FPSController : MonoBehaviour
     #region InputMethodsForFSM
     public bool bJumpPressed()
     {
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         return Input.GetKeyDown(KeyCode.Space);
-        #else
-        return Input.GetButtonDown("Cross");
-        #endif
+#else
+        return Input.GetButtonDown("Left Shoulder");
+#endif
         //return Input.GetButtonDown("Jump");
     }
 
@@ -256,7 +262,7 @@ public class PC_FPSController : MonoBehaviour
         PlayerLeadTime += (curSpeedX - (slowSpeed + runningSpeed) * 0.5f) * Time.deltaTime;  //The crazy lazy way
         
         
-        if (PlayerLeadTime <= 0) {
+        if (PlayerLeadTime <= 0 && !bPlayerInvincible) {
             DeadIndicator.SetActive(true);
             bPlayerDead = true; //Kill our player
         }
@@ -285,12 +291,25 @@ public class PC_FPSController : MonoBehaviour
         }
     }
 
+    public bool bValidWallRun()
+    {
+        if (LastWallNormal == Vector3.zero)
+        {
+            return true;
+        }
+        if (Vector3.Dot(LastWallNormal, WallHitNormal) > 0.5f) { //this isn't a different angled wall
+            return false;
+        }
+        return true;
+    }
+
     public bool bIsGrounded()
     {
         if (characterController.isGrounded)
         {
             WallRunBias = 0; //Reset our bias so we can wall run again
             SideMomentum = 0; //Get our side momentium under control again
+            LastWallNormal = Vector3.zero;
         }
         return characterController.isGrounded;
     }
@@ -318,11 +337,13 @@ public class PC_FPSController : MonoBehaviour
         // Does the ray intersect any objects excluding the player layer
         if (Physics.Raycast(transform.position, Char_Right, out hit, trickRayDist, worldRaycastMask))
         {
+            WallHitNormal = hit.normal;
             return 1f; //We've a wall on our right
         }
 
         if (Physics.Raycast(transform.position, -Char_Right, out hit, trickRayDist, worldRaycastMask))
         {
+            WallHitNormal = hit.normal;
             return -1f; //We've a wall on our left
         }
 
@@ -417,6 +438,10 @@ public class PC_FPSController : MonoBehaviour
                 DeadIndicator.SetActive(false);
                 //Respawn our player
                 gameObject.transform.position = StartPosition;
+                //Handle our curve position
+                bestTime = pathCreator.path.GetClosestTimeOnPath(gameObject.transform.position);  //This is actually well optimised...
+                bestDistance = pathCreator.path.GetClosestDistanceAlongPath(gameObject.transform.position);
+
                 PlayerLeadTime = 3f;
             }
         }

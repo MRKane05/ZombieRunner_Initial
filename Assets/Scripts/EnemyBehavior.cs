@@ -21,9 +21,11 @@ public class EnemyBehavior : MonoBehaviour {
 	float gravity = 20f;
 
 	CharacterController characterController;
+	Vector3 startPosition = Vector3.zero;
 
 	void Start() {
 		characterController = gameObject.GetComponent<CharacterController>();
+		startPosition = gameObject.transform.position;
 	}
 
 	public void Update() {

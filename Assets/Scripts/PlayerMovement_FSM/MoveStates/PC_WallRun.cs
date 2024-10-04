@@ -15,7 +15,7 @@ public class PC_WallRun : PC_BaseState {
 		runTimer = 0; //reset our wallrun timer
 
 		baseController.DoJump(0f, 0.33f); //set our upward velocity to a small hop for the wallrun
-		baseController.WallRunBias = baseController.WallOnSide();
+		//baseController.WallRunBias = baseController.WallOnSide();
 	}
 
     public override void UpdateState() {
@@ -70,4 +70,10 @@ public class PC_WallRun : PC_BaseState {
 			SwitchState(factory.PCRunState());
 		}
 	}
+
+    public override void ExitState()
+    {
+        base.ExitState();
+		baseController.LastWallNormal = baseController.WallHitNormal;
+    }
 }
