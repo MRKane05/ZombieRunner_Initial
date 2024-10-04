@@ -17,7 +17,8 @@ public class EnemyBehavior : MonoBehaviour {
 	public Animator targetCharacter;
 
 
-	// Update is called once per frame
+	float EnemyFallSpeed = 0;
+	float gravity = 20f;
 
 	CharacterController characterController;
 
@@ -53,39 +54,10 @@ public class EnemyBehavior : MonoBehaviour {
 		Debug.Log("Doing Enemy redrop");
 		Vector3 dropPoint = LevelController.Instance.GetEnemyDropPoint(redropMask);
 		RespawnEnemy(dropPoint);
-
-		/*
-		//Find somewhere forward of our player. For the moment things are straight.
-		bool bFoundDropPoint = false;
-		int cycles = 0;
-		while (!bFoundDropPoint && cycles < 30) {
-			//PROBLEM: This'll need re-worked once we've got curves
-			float baseRandZ = PC_FPSController.Instance.gameObject.transform.position.z + Random.RandomRange(30f, 40f);
-			float baseRandX = Random.RandomRange(-10f, 10f);
-			//Do a raycast down to see if we hit the ground and not a vehicle, then plonk our enemy here
-			 RaycastHit hit;
-			// Does the ray intersect any objects excluding the player layer
-			if (Physics.Raycast(new Vector3(baseRandX, 20, baseRandZ), -Vector3.up, out hit, 30, redropMask))
-			{
-				Debug.DrawRay(new Vector3(baseRandX, 20, baseRandZ), -Vector3.up * hit.distance, Color.yellow);
-				if (hit.collider.gameObject.tag == "Ground") {	//We're good
-					RespawnEnemy(hit.point);
-					bFoundDropPoint = true;
-				}
-			}
-			else
-			{
-				//This shouldn't have happened...
-				Debug.DrawRay(new Vector3(baseRandX, 20, baseRandZ), -Vector3.up * 30, Color.red);
-			}
-			cycles++; //Increment our cycles up so we've got an out. I should write something in here to make the randoms wider the higher the count gets
-		}
-		*/
-
 	}
 
 	public void RespawnEnemy(Vector3 thisPos) {
-		gameObject.transform.position = thisPos + Vector3.up * 0.9f;
+		gameObject.transform.position = thisPos + Vector3.up * 1.5f;
 		bHasStruckPlayer = false;
 	}
 
@@ -96,20 +68,34 @@ public class EnemyBehavior : MonoBehaviour {
 		Vector3 right = transform.TransformDirection(Vector3.right);
 		Vector3 playerDir = PC_FPSController.Instance.gameObject.transform.position - gameObject.transform.position;
 		float distToPlayer = playerDir.magnitude;
+		/*
 		if (distToPlayer > attention_radius) {
 			return; //Don't movie our zombie, save some process
-		}
+		}*/
 
+		float playerAngle = Mathf.Atan2(playerDir.x, playerDir.z);
+		//Debug.Log(playerAngle);
 		playerDir.y = 0; //Flatten our movement so we don't fly...
 		playerDir = playerDir.normalized;
 		//It's actually a little pointless to have these different speeds as the player doesn't get to see it
 		float moveSpeed = speed_amble; // distToPlayer > dash_radius ? speed_amble : speed_dash;
 
-		Vector3 moveDirection = playerDir * moveSpeed;	//Get the net of how we should be ambling
+		Vector3 moveDirection = playerDir * moveSpeed;  //Get the net of how we should be ambling
 
+		if (characterController.isGrounded)
+        {
+			EnemyFallSpeed = 0;
+        } else
+        {
+			EnemyFallSpeed -= gravity * Time.deltaTime;
+        }
+
+		moveDirection.y = EnemyFallSpeed;
 		characterController.Move(moveDirection * Time.deltaTime);   //Actually do our move
-																	//We need to point our enemy at our player
-		gameObject.transform.LookAt(PC_FPSController.Instance.gameObject.transform.position, Vector3.up);
+		//We need to point our enemy at our player
+		//This isn't good enough for our direction. While I don't feel we need pathfinding we do need enemies that don't operate like turrets
+		//gameObject.transform.LookAt(PC_FPSController.Instance.gameObject.transform.position, Vector3.up);
+		gameObject.transform.eulerAngles = new Vector3(0, playerAngle * 180f/ Mathf.PI, 0);
 	}
 
 }

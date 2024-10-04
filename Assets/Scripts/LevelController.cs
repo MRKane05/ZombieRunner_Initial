@@ -46,8 +46,20 @@ public class LevelController : MonoBehaviour {
 				Debug.DrawRay(CurveDropPoint, -Vector3.up * hit.distance, Color.yellow);
 				if (hit.collider.gameObject.tag == "Ground")
 				{   //We're good
-					return hit.point;
-					bFoundDropPoint = true;
+					Collider[] hitColliders = Physics.OverlapSphere(hit.point, 1f);
+					bool bClearDropArea = true;
+					foreach (var hitCollider in hitColliders)
+					{
+						if (hitCollider.gameObject.tag != "Ground")
+                        {
+							bClearDropArea = false;
+                        }
+					}
+					if (bClearDropArea)
+					{
+						return hit.point;
+						bFoundDropPoint = true;
+					}
 				}
 			}
 			else

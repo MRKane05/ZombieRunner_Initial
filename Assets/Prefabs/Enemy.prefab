@@ -139,7 +139,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4275568568446394}
-  - component: {fileID: 136977245293294628}
   - component: {fileID: 143658268633168994}
   - component: {fileID: 114719828474254130}
   m_Layer: 10
@@ -681,7 +680,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1192548015709004}
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: -34.643867, y: 31.39, z: -44.252163}
+  m_LocalPosition: {x: -34.643867, y: 37.77, z: -44.252163}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4733255952898244}
@@ -1151,7 +1150,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: e70317693cb79c54ba54fc34f82e3698, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
-  m_ApplyRootMotion: 1
+  m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
@@ -1199,19 +1198,6 @@ SphereCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 2
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!136 &136977245293294628
-CapsuleCollider:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1192548015709004}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 1.8
-  m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!137 &137634269565811234
 SkinnedMeshRenderer:
