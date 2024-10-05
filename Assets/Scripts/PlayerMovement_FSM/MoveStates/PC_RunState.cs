@@ -23,14 +23,14 @@ public class PC_RunState : PC_BaseState {
 	{
 		if (baseController.bJumpPressed())
 		{
-			Debug.Log("Doing Jump");
+			//Debug.Log("Doing Jump");
 			baseController.DoJump(0f, 1f);
 			SwitchState(factory.PCAirbourne());
 		}
 
 		if (baseController.bHitWall())
         {
-			Debug.Log("Doing Wall Kick");
+			//Debug.Log("Doing Wall Kick");
 			baseController.DoJump(0f, 1f);
 			SwitchState(factory.PCWallKick());
 		}

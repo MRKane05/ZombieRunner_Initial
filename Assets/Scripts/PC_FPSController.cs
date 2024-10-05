@@ -27,7 +27,7 @@ public class PC_FPSController : MonoBehaviour
 
     public float slowSpeed = 7.5f;
     public float runningSpeed = 11.5f;
-    public float sprintingSpeed = 15f;
+    public float boostSpeed = 15f;
 
     public float strafeSpeed = 9f;
 
@@ -61,12 +61,28 @@ public class PC_FPSController : MonoBehaviour
     public PC_BaseState CurrentState { get { return currentState; } set { currentState = value; } }
 
     CharacterController characterController;
+    #region BoostTriggerDetails
+    //We need something to give us speed boosts
+    [HideInInspector]
+    public float boostTime = 0;         //How much is left on our boost?
+    [HideInInspector]
+    public float jumpReleaseTime = 0;   //What time did we release jump?
+    [HideInInspector]
+    public float boostTriggerTime = 0;  //This will be set from one of our states and compared against the jump release time
+    [HideInInspector]
+    public bool bBoostTriggerReady = false; //Have we had a boost set from our states? This is just a bit of overprogramming
+    [HideInInspector]
+    public float boostTriggerDuration = 0f; //How long does our boost trigger go for?
+    public Range boostTriggerThreshold = new Range(-0.5f, 1.5f);  //Will need to adjust this to suit, and the values returned can be a little funny... :)
+    #endregion
 
+    #region StumbleDetails
     //Handler components for our "stumble" which will affect us if we're hit, or trip over something
     public float stumbleTime = 0;
     public float stumbleMax = 1.5f; //This'll possibly be variable? I dunno
     public AnimationCurve stumbleRecoveryCurve;
     public float stumbleSpeedPenalty = 0.5f; //A multiplier that's compared against the stumble recovery curve to dictate our recovery
+    #endregion
 
     Vector3 moveDirection = Vector3.forward;
     float rotationX = 0, rotationY = 0;
@@ -162,7 +178,27 @@ public class PC_FPSController : MonoBehaviour
 
     public bool bJumpHeld()
     {
-        return Input.GetButton("Jump");
+#if UNITY_EDITOR
+        return Input.GetKey(KeyCode.Space);
+#else
+        return Input.GetButton("Left Shoulder");
+#endif
+    }
+
+    //Basically this is a little watcher to see when the player released the jump button and put a timestamp on it. There's probably better ways of doing this, but for the moment lets do this
+    public void GetJumpReleaseTime()
+    {
+#if UNITY_EDITOR
+        if (Input.GetKeyUp(KeyCode.Space))
+        {
+            Debug.Log("Jump Released");
+            jumpReleaseTime = Time.time;
+        }
+#else
+        if (Input.GetButtonUp("Left Shoulder")) {
+            jumpReleaseTime = Time.time;
+        }
+#endif
     }
 
     public bool bAddEffort()
@@ -195,8 +231,6 @@ public class PC_FPSController : MonoBehaviour
         stumbleTime = Mathf.Clamp(stumbleTime, 0f, stumbleMax);
         return Mathf.Lerp(stumbleSpeedPenalty, 1f, stumbleRecoveryCurve.Evaluate(stumbleTime/stumbleMax));
     }
-
-
 
     //PROBLEM: This can't be hammered every frame as it causes a massive drop in FPS. The "find closest time on path" is fine on PC but it drills the Vita FPS down like a bitch
     public Vector3 getForwardDirection()
@@ -240,15 +274,17 @@ public class PC_FPSController : MonoBehaviour
         Vector3 right = Quaternion.AngleAxis(90f, Vector3.up)*forward; //transform.TransformDirection(Vector3.right);
 
         bool addEffort = bAddEffort();
+        boostTime -= Time.deltaTime;    //PROBLEM: This needs refactoring - Tick our boost speed down
+        float calcMoveSpeed = boostTime > 0 ? boostSpeed : runningSpeed;    //Take into account our boost but still allow for slowing our player
 
-        moveSpeed = addEffort ? sprintingSpeed : Mathf.Lerp(slowSpeed, runningSpeed, Input.GetAxis("Vertical") * 0.5f + 0.5f);
+        moveSpeed = Mathf.Lerp(slowSpeed, calcMoveSpeed, Mathf.Clamp01(Input.GetAxis("Vertical") + 1f));
 
         float curSpeedX = moveSpeed;
         float curSpeedY = strafeSpeed * Input.GetAxis("Horizontal") + SideMomentum; //So we can move extra fast if we've done a side kick. What should our air control be?
 
-//Vita Control injection      
+        //Vita Control injection      
 #if !UNITY_EDITOR
-        moveSpeed = addEffort ? sprintingSpeed : Mathf.Lerp(slowSpeed, runningSpeed, Input.GetAxis("Left Stick Vertical") * 0.5f + 0.5f);  
+        moveSpeed = Mathf.Lerp(slowSpeed, calcMoveSpeed, Mathf.Clamp01(Input.GetAxis("Left Stick Vertical") +1f));  
         curSpeedY = strafeSpeed * Input.GetAxis("Left Stick Horizontal") + SideMomentum; //So we can move extra fast if we've done a side kick. What should our air control be?
 #endif
 
@@ -297,7 +333,7 @@ public class PC_FPSController : MonoBehaviour
         {
             return true;
         }
-        if (Vector3.Dot(LastWallNormal, WallHitNormal) > 0.5f) { //this isn't a different angled wall
+        if (Vector3.Dot(LastWallNormal, WallHitNormal) > 0.75f) { //this isn't a different enough angled wall
             return false;
         }
         return true;
@@ -432,6 +468,13 @@ public class PC_FPSController : MonoBehaviour
         ControlCamera();
         AdjustFollowDisplay();
 
+        //Checks for our movement boosts on Jump release
+        GetJumpReleaseTime();
+        if (bBoostTriggerReady && !bJumpHeld())
+        {
+            doBoostTrigger();
+        }
+
         if (bPlayerDead) {
             if (Input.GetKey(KeyCode.Return) || Input.GetButton("Circle")) {
                 bPlayerDead = false;
@@ -458,8 +501,39 @@ public class PC_FPSController : MonoBehaviour
         //This needs to put in place a hit effect, and also a speed penalty
         //Essentially this is a "stumble"
         stumbleTime = stumbleMax;
+        boostTime = 0; //Getting hit cancels our bost
     }
 
+    #region BoostFunctions
+
+    //This is used for jump button release boosts
+    public void SetBoostTrigger(float boostDuration)
+    {
+        Debug.Log("setting boost trigger");
+        boostTriggerTime = Time.time;
+        bBoostTriggerReady = true;
+        boostTriggerDuration = boostDuration;
+    }
+
+    void doBoostTrigger()
+    {
+        //Debug.Log(boostTriggerTime - jumpReleaseTime);
+        if (boostTriggerThreshold.ValueWithin(Mathf.Abs(boostTriggerTime - jumpReleaseTime)))
+        {
+            BoostPlayer(boostTriggerDuration);
+        }
+        bBoostTriggerReady = false; //Call this done done :)
+    }
+
+    public void BoostPlayer(float extraboostTime)
+    {
+        if (boostTime < 0)
+        {
+            boostTime = 0;
+        }
+        boostTime += extraboostTime;
+    }
+    #endregion
 
     #region LadderFunctions
     void OnTriggerEnter(Collider other)

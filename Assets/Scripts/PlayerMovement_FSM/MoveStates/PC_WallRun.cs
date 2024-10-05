@@ -42,7 +42,8 @@ public class PC_WallRun : PC_BaseState {
 		if (baseController.bJumpPressed())
 		{
 			Debug.Log("Doing Jump");
-			baseController.DoJump(-WallContact, 1f);	//So in sense we'll have to add momentium for our "kickoff" from the wall
+			baseController.DoJump(-WallContact, 1f);    //So in sense we'll have to add momentium for our "kickoff" from the wall
+			baseController.BoostPlayer(0.75f);	//Give our player a speed boost for this action
 			SwitchState(factory.PCAirbourne());
 		}
 

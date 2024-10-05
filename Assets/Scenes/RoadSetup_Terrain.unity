@@ -8372,9 +8372,9 @@ MonoBehaviour:
   FollowIndicator: {fileID: 289736106}
   DeadIndicator: {fileID: 2120080145}
   PlayerLeadTime: 3
-  slowSpeed: 5
-  runningSpeed: 11
-  sprintingSpeed: 15
+  slowSpeed: 4
+  runningSpeed: 7
+  boostSpeed: 12
   strafeSpeed: 9
   climbSpeed: 5
   jumpSpeed: 8
@@ -8388,6 +8388,14 @@ MonoBehaviour:
   lookYLimit: 30
   PC_MoveState: 0
   PC_startingState: 1
+  boostTime: 0
+  jumpReleaseTime: 0
+  boostTriggerTime: 0
+  bBoostTriggerReady: 0
+  boostTriggerDuration: 0
+  boostTriggerThreshold:
+    Min: -0.5
+    Max: 0.5
   stumbleTime: 0
   stumbleMax: 1.5
   stumbleRecoveryCurve:
@@ -8416,9 +8424,11 @@ MonoBehaviour:
     m_RotationOrder: 4
   stumbleSpeedPenalty: 0.5
   WallRunBias: 0
+  LastWallNormal: {x: 0, y: 0, z: 0}
+  WallHitNormal: {x: 0, y: 0, z: 0}
   StateDisplay: {fileID: 1792698248}
   canMove: 1
-  bPlayerInvincible: 1
+  bPlayerInvincible: 0
   bestDistance: 0
 --- !u!134 &513760380
 PhysicMaterial:
@@ -10627,7 +10637,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 1192548015709004, guid: 20240cba330f35446a7d1f79ee1c48be, type: 2}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 20240cba330f35446a7d1f79ee1c48be, type: 2}
@@ -19200,7 +19210,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 1192548015709004, guid: 20240cba330f35446a7d1f79ee1c48be, type: 2}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 20240cba330f35446a7d1f79ee1c48be, type: 2}
@@ -20769,7 +20779,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 1192548015709004, guid: 20240cba330f35446a7d1f79ee1c48be, type: 2}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 20240cba330f35446a7d1f79ee1c48be, type: 2}
@@ -24973,7 +24983,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 1192548015709004, guid: 20240cba330f35446a7d1f79ee1c48be, type: 2}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 20240cba330f35446a7d1f79ee1c48be, type: 2}
@@ -26331,25 +26341,37 @@ MonoBehaviour:
       - {x: -24.846233, y: 35.256416, z: 54.289772}
       - {x: -24.495483, y: 35.36929, z: 74.41553}
       - {x: -23.934427, y: 35.54984, z: 106.608475}
-      - {x: -34.22114, y: 30.39468, z: 148.82425}
+      - {x: -33.037655, y: 30.391228, z: 148.90227}
       - {x: -35.748535, y: 28.001709, z: 180.89719}
-      - {x: -38.094784, y: 24.32584, z: 230.16481}
-      - {x: -47.836906, y: 16.785873, z: 297.7624}
+      - {x: -37.94669, y: 26.064137, z: 206.84068}
+      - {x: -41.646286, y: 23.143322, z: 241.44931}
+      - {x: -41.27484, y: 21.061628, z: 267.472}
+      - {x: -40.940487, y: 19.187807, z: 290.89612}
+      - {x: -42.525208, y: 15.907534, z: 323.32565}
       - {x: -34.078094, y: 14.854316, z: 345.2311}
-      - {x: -21.936718, y: 13.149824, z: 387.1196}
-      - {x: 41.204178, y: 13.387996, z: 425.43878}
+      - {x: -25.2546, y: 13.7541685, z: 368.11264}
+      - {x: 2.3372507, y: 14.133784, z: 389.67844}
+      - {x: 14.979633, y: 14.2842045, z: 410.72067}
+      - {x: 24.932182, y: 14.40262, z: 427.2859}
+      - {x: 42.952156, y: 14.445944, z: 449.7307}
       - {x: 42.360016, y: 15.518295, z: 469.01733}
-      - {x: 43.248363, y: 17.155582, z: 502.51056}
-      - {x: 8.150543, y: 23.119606, z: 539.4081}
+      - {x: 41.332184, y: 17.379675, z: 502.49487}
+      - {x: 8.37182, y: 23.007963, z: 539.57245}
       - {x: -11.273254, y: 24.435139, z: 566.7257}
-      - {x: -50.885845, y: 27.118015, z: 622.4368}
-      - {x: -128.33893, y: 24.51017, z: 677.68726}
+      - {x: -30.491339, y: 25.831295, z: 593.2888}
+      - {x: -63.86014, y: 24.995827, z: 622.3887}
+      - {x: -85.8527, y: 24.941818, z: 646.7445}
+      - {x: -109.71454, y: 24.883219, z: 673.1705}
+      - {x: -145.66632, y: 24.374773, z: 705.54663}
       - {x: -163.9903, y: 24.001467, z: 736.07227}
-      - {x: -194.73259, y: 23.562809, z: 786.41785}
-      - {x: -231.61057, y: 20.97976, z: 860.96027}
+      - {x: -194.3498, y: 23.382967, z: 786.64777}
+      - {x: -227.73686, y: 21.136473, z: 861.2261}
       - {x: -233.72707, y: 21.501316, z: 919.9112}
-      - {x: -238.47594, y: 22.671553, z: 1052.1813}
-      - {x: -172.85495, y: 28.584877, z: 1197.2864}
+      - {x: -238.0677, y: 21.76569, z: 962.4357}
+      - {x: -221.97575, y: 23.808342, z: 1019.2201}
+      - {x: -211.14781, y: 25.015541, z: 1060.5547}
+      - {x: -188.3097, y: 27.561743, z: 1147.7368}
+      - {x: -147.77182, y: 31.029972, z: 1245.0641}
       - {x: -107.23395, y: 34.4982, z: 1342.3914}
       isClosed: 0
       space: 0
@@ -26378,9 +26400,17 @@ MonoBehaviour:
       - 0
       - 0
       - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
       globalNormalsAngle: 0
       flipNormals: 0
-    vertexPathUpToDate: 1
+    vertexPathUpToDate: 0
     vertexPathMaxAngleError: 0.3
     vertexPathMinVertexSpacing: 0.01
     showTransformTool: 1
@@ -28003,7 +28033,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1792698247
 RectTransform:
   m_ObjectHideFlags: 0

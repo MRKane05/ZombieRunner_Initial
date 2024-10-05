@@ -25,6 +25,8 @@ public class PC_Airbourne : PC_BaseState {
 	public override void CheckSwitchState() { 
 		if (baseController.bIsGrounded())
         {
+			//we could have a boost trigger here
+			baseController.SetBoostTrigger(0.75f);
 			SwitchState(factory.PCRunState());
         }
 
