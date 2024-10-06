@@ -126,6 +126,9 @@ public class PC_FPSController : MonoBehaviour
     public float bestDistance = 0;
     float bestTime = 0;
     float moveSpeed = 0; //Stored here so that we can used it without having to do a square distance on a prior position
+    float flatMoveDistance= 0; //How much have we moved excluding our vertical?
+    float movedDistance = 0; // How far did we actually move this tick?
+    Vector3 priorPosition = Vector3.zero;
     Vector3 priorForward = Vector3.forward; //What was our former forward vector?
 
 
@@ -163,6 +166,7 @@ public class PC_FPSController : MonoBehaviour
         //Handle our curve position
         bestTime = pathCreator.path.GetClosestTimeOnPath(gameObject.transform.position);  //This is actually well optimised...
         bestDistance = pathCreator.path.GetClosestDistanceAlongPath(gameObject.transform.position);
+        priorPosition = gameObject.transform.position;
     }
 
     #region InputMethodsForFSM
@@ -242,7 +246,7 @@ public class PC_FPSController : MonoBehaviour
         }
 
         //So I think I need a new approach. We'll get the time to kick off with, and then go off of distance with a guess based off of how fast we're travelling, and a bit of wriggle ahead/behind then take the closest as gospel
-        float distanceGuess = bestDistance + moveSpeed * Time.deltaTime;
+        float distanceGuess = bestDistance + flatMoveDistance;// * Time.deltaTime;
         bestDistance = distanceGuess;
         float bestDistanceSpan = Vector3.SqrMagnitude(gameObject.transform.position-pathCreator.path.GetPointAtDistance(distanceGuess));
 
@@ -260,6 +264,9 @@ public class PC_FPSController : MonoBehaviour
                 }
             }
         }
+
+        //Lets see how good the above actually is
+        Debug.Log("Distance Guess: " + (bestDistance - pathCreator.path.GetClosestDistanceAlongPath(gameObject.transform.position)));
 
         //we really only  need the path normal for our heading
         Vector3 pathHeading = pathCreator.path.GetDirectionAtDistance(bestDistance); // .GetDirection(bestTime); // (distance, EndOfPathInstruction.Stop);
@@ -312,7 +319,9 @@ public class PC_FPSController : MonoBehaviour
         moveDirection.y = movementDirectionY;
 
         characterController.Move(moveDirection * Time.deltaTime);   //Actually do our move
-
+        //moveSpeed = Vector3.Distance(priorPosition, gameObject.transform.position)/Time.deltaTime;  //This could be really irregular...
+        flatMoveDistance = Vector2.Distance(new Vector2(priorPosition.x, priorPosition.z), new Vector2(transform.position.x, transform.position.z));
+        priorPosition = gameObject.transform.position; //Reset this so that we get a read for the next tick
         //We'd be wise to align our character to the movement direction here too (as it'll fix forward issues)
         gameObject.transform.LookAt(gameObject.transform.position + forward * 3f, Vector3.up);
     }
@@ -481,6 +490,7 @@ public class PC_FPSController : MonoBehaviour
                 DeadIndicator.SetActive(false);
                 //Respawn our player
                 gameObject.transform.position = StartPosition;
+                priorPosition = StartPosition;
                 //Handle our curve position
                 bestTime = pathCreator.path.GetClosestTimeOnPath(gameObject.transform.position);  //This is actually well optimised...
                 bestDistance = pathCreator.path.GetClosestDistanceAlongPath(gameObject.transform.position);
