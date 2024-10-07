@@ -24,6 +24,7 @@ public class PC_RunState : PC_BaseState {
 		if (baseController.bJumpPressed())
 		{
 			//Debug.Log("Doing Jump");
+			baseController.setAnimTrigger("JumpTrigger");	//This'll need to be reset before we call it again
 			baseController.DoJump(0f, 1f);
 			SwitchState(factory.PCAirbourne());
 		}
@@ -31,6 +32,7 @@ public class PC_RunState : PC_BaseState {
 		if (baseController.bHitWall())
         {
 			//Debug.Log("Doing Wall Kick");
+			baseController.setAnimTrigger("WallRunTrigger");
 			baseController.DoJump(0f, 1f);
 			SwitchState(factory.PCWallKick());
 		}

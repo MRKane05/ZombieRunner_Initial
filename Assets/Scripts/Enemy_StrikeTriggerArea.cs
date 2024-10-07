@@ -14,7 +14,7 @@ public class Enemy_StrikeTriggerArea : MonoBehaviour {
 		if (!ourBaseEnemy.bHasStruckPlayer) {
 			PC_FPSController playerController = other.gameObject.GetComponent<PC_FPSController>();
 			if (playerController) {
-				Debug.Log("HitPlayer");
+				//Debug.Log("HitPlayer");
 				//We can strike this player
 				ourBaseEnemy.HitPlayer();
 				playerController.EnemyHitPlayer(gameObject);

@@ -17,6 +17,8 @@ public class PC_FPSController : MonoBehaviour
     public PathCreator pathCreator;
 
     //PROBLEM: This UI stuff needs fixed up
+    [Space]
+    [Header("HUD Settings")]
     public DamageIndicatorHandler ourDamageIndicator; //Really this should go through a UI handler, but for the moment...
     public Image FollowIndicator; //Terrible form here too...
     public GameObject DeadIndicator;
@@ -24,7 +26,9 @@ public class PC_FPSController : MonoBehaviour
     public float PlayerLeadTime = 3f;
 
     bool bClimbing = false;
-
+    [Space]
+    [Header("Player Speed Settings")]
+    public Animator playerAnimator;
     public float slowSpeed = 7.5f;
     public float runningSpeed = 11.5f;
     public float boostSpeed = 15f;
@@ -46,8 +50,10 @@ public class PC_FPSController : MonoBehaviour
 
 
     public LayerMask worldRaycastMask;  //So we don't do tricks against the wrong thing
-
+    [Space]
+    [Header("Camera Controls")]
     public Camera playerCamera;
+    public GameObject eyePosition;
     public float lookSpeed = 2.0f;
     public float lookXLimit = 30f;
     public float lookYLimit = 45f;
@@ -169,6 +175,25 @@ public class PC_FPSController : MonoBehaviour
         priorPosition = gameObject.transform.position;
     }
 
+    public List<String> setTriggers = new List<String>();
+
+    public void setAnimTrigger(string triggerName)
+    {
+        Debug.Log("Setting Anim Trigger: " + triggerName);
+        //setTriggers.Add(triggerName);
+        playerAnimator.SetTrigger(triggerName);
+    }
+
+    public void unsetTriggers()
+    {
+        foreach(string thisTrigger in setTriggers)
+        {
+            playerAnimator.ResetTrigger(thisTrigger);
+        }
+
+        setTriggers.Clear();
+        setTriggers = new List<string>();
+    }
     #region InputMethodsForFSM
     public bool bJumpPressed()
     {
@@ -195,7 +220,7 @@ public class PC_FPSController : MonoBehaviour
 #if UNITY_EDITOR
         if (Input.GetKeyUp(KeyCode.Space))
         {
-            Debug.Log("Jump Released");
+            //Debug.Log("Jump Released");
             jumpReleaseTime = Time.time;
         }
 #else
@@ -266,7 +291,7 @@ public class PC_FPSController : MonoBehaviour
         }
 
         //Lets see how good the above actually is
-        Debug.Log("Distance Guess: " + (bestDistance - pathCreator.path.GetClosestDistanceAlongPath(gameObject.transform.position)));
+        //Debug.Log("Distance Guess: " + (bestDistance - pathCreator.path.GetClosestDistanceAlongPath(gameObject.transform.position)));
 
         //we really only  need the path normal for our heading
         Vector3 pathHeading = pathCreator.path.GetDirectionAtDistance(bestDistance); // .GetDirection(bestTime); // (distance, EndOfPathInstruction.Stop);
@@ -464,6 +489,11 @@ public class PC_FPSController : MonoBehaviour
 
         rotationY = Mathf.Clamp(rotationY, -lookYLimit, lookYLimit);
         playerCamera.transform.localRotation = Quaternion.Euler(rotationX, rotationY, 0);
+        
+        if (eyePosition)    //Lock our camera to our characters head
+        {
+            playerCamera.transform.position = eyePosition.transform.position; 
+        }
     }
     #endregion
 
@@ -498,6 +528,11 @@ public class PC_FPSController : MonoBehaviour
                 PlayerLeadTime = 3f;
             }
         }
+
+        //Housekeeping
+        //Because our character body keeps drifting with animations...
+        playerAnimator.transform.localPosition = Vector3.Lerp(playerAnimator.transform.localPosition, Vector3.zero, Time.deltaTime);
+        playerAnimator.transform.localRotation = Quaternion.Slerp(playerAnimator.transform.localRotation, Quaternion.identity, Time.deltaTime);
     }
 
     void AdjustFollowDisplay() {
@@ -519,7 +554,7 @@ public class PC_FPSController : MonoBehaviour
     //This is used for jump button release boosts
     public void SetBoostTrigger(float boostDuration)
     {
-        Debug.Log("setting boost trigger");
+        //Debug.Log("setting boost trigger");
         boostTriggerTime = Time.time;
         bBoostTriggerReady = true;
         boostTriggerDuration = boostDuration;
