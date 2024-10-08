@@ -16,6 +16,14 @@ public class PC_WallRun : PC_BaseState {
 
 		baseController.DoJump(0f, 0.33f); //set our upward velocity to a small hop for the wallrun
 		//baseController.WallRunBias = baseController.WallOnSide();
+		//We should set our animation here
+		if (baseController.WallOnSide() > 0)
+        {
+			baseController.setCurrentAnimation("WallRun_Right");
+        } else
+        {
+			baseController.setCurrentAnimation("WallRun_Left");
+        }
 	}
 
     public override void UpdateState() {

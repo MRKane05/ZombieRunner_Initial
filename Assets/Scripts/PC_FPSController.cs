@@ -175,25 +175,33 @@ public class PC_FPSController : MonoBehaviour
         priorPosition = gameObject.transform.position;
     }
 
-    public List<String> setTriggers = new List<String>();
-
-    public void setAnimTrigger(string triggerName)
-    {
-        Debug.Log("Setting Anim Trigger: " + triggerName);
-        //setTriggers.Add(triggerName);
-        playerAnimator.SetTrigger(triggerName);
-    }
-
-    public void unsetTriggers()
-    {
-        foreach(string thisTrigger in setTriggers)
+    /*
+        public void setAnimTrigger(string triggerName)
         {
-            playerAnimator.ResetTrigger(thisTrigger);
+            Debug.Log("Setting Anim Trigger: " + triggerName);
+            //setTriggers.Add(triggerName);
+            playerAnimator.SetTrigger(triggerName);
         }
+    */
 
-        setTriggers.Clear();
-        setTriggers = new List<string>();
+    string currentAnimation = "";
+    public void setCurrentAnimation(string animName)
+    {
+        if (currentAnimation != animName)
+        {
+            currentAnimation = animName;
+            playerAnimator.CrossFade(animName, 0.25f, 0);
+        }
     }
+
+    //because there are a couple of different runs this is important for sending calls through as necessary. For the moment we're just going to be dumb
+    public void checkRunAnim()
+    {
+        //setCurrentAnimation("Run_Fast");
+        setCurrentAnimation("Run_Standard");
+    }
+
+
     #region InputMethodsForFSM
     public bool bJumpPressed()
     {
@@ -380,6 +388,7 @@ public class PC_FPSController : MonoBehaviour
             WallRunBias = 0; //Reset our bias so we can wall run again
             SideMomentum = 0; //Get our side momentium under control again
             LastWallNormal = Vector3.zero;
+            checkRunAnim(); //So that we're playing the correct animation for being on the ground
         }
         return characterController.isGrounded;
     }
@@ -547,6 +556,7 @@ public class PC_FPSController : MonoBehaviour
         //Essentially this is a "stumble"
         stumbleTime = stumbleMax;
         boostTime = 0; //Getting hit cancels our bost
+        setCurrentAnimation("Hit_Left");    //Our hits need a special handler as technically they're grounded
     }
 
     #region BoostFunctions

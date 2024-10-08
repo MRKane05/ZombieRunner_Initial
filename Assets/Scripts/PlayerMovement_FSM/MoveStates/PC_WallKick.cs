@@ -9,7 +9,11 @@ public class PC_WallKick : PC_Airbourne {
 		: base(currentContext, playerStateFactory)
 	{ }
 
-	
+	public override void EnterState()
+	{
+		baseController.setCurrentAnimation("WallKick");
+	}
+
 	public override void UpdateState()
 	{
 		//For the moment lets just use our move functions

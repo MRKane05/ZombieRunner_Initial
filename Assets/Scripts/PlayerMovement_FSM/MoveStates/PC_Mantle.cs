@@ -11,7 +11,7 @@ public class PC_Mantle : PC_BaseState {
 
 	public override void EnterState()
 	{
-		baseController.setAnimTrigger("MantleTrigger");
+		baseController.setCurrentAnimation("Mantle");
 		baseController.TargetHeightScale = 0.3f;	//reduce our scale so that it'll give us the illusion of standing up after a mantle
 	}
 
