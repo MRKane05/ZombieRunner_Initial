@@ -14,6 +14,7 @@ public class PC_RunState : PC_BaseState {
 		if (!baseController.bIsGrounded())
         {
 			baseController.DoFall(true, 1f);
+			baseController.setCurrentAnimation("Fall_Idle");
         }
 
 		CheckSwitchState();

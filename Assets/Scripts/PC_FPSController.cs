@@ -29,6 +29,7 @@ public class PC_FPSController : MonoBehaviour
     [Space]
     [Header("Player Speed Settings")]
     public Animator playerAnimator;
+    public GameObject characterPosition;
     public float slowSpeed = 7.5f;
     public float runningSpeed = 11.5f;
     public float boostSpeed = 15f;
@@ -40,6 +41,10 @@ public class PC_FPSController : MonoBehaviour
     public float jumpSpeed = 8.0f;
     float kickMomentum = 10.0f;
     public float gravity = 20.0f;
+
+    float targetRunType = 0.5f;
+    float runType = 0.5f;
+    Range RunScaleRange = new Range(0.8f, 1.3f); //So that our movement speeds scale
 
     //A quick little bit of testing for our raycast colliders
     float trickRayDist = 1f; //How far out do we test for raycasts in our world for the different tricks we'll be doing?
@@ -114,6 +119,7 @@ public class PC_FPSController : MonoBehaviour
     //Some stored details
     float controllerHeight;
     Vector3 cameraStartPosition;
+    Vector3 characterPositionStart;
 
     float targetHeightScale = 1f;
     public float TargetHeightScale
@@ -130,6 +136,7 @@ public class PC_FPSController : MonoBehaviour
     //Details that are used to calculate where we are along our path:
     [HideInInspector]
     public float bestDistance = 0;
+    float bestDistanceSpan = 0; //How far are we away from the center of the path?
     float bestTime = 0;
     float moveSpeed = 0; //Stored here so that we can used it without having to do a square distance on a prior position
     float flatMoveDistance= 0; //How much have we moved excluding our vertical?
@@ -162,6 +169,7 @@ public class PC_FPSController : MonoBehaviour
         characterController = GetComponent<CharacterController>();
         controllerHeight = characterController.height;
         cameraStartPosition = playerCamera.transform.localPosition;
+        characterPositionStart = characterPosition.transform.localPosition;
 
         // Lock cursor
         Cursor.lockState = CursorLockMode.Locked;
@@ -174,15 +182,6 @@ public class PC_FPSController : MonoBehaviour
         bestDistance = pathCreator.path.GetClosestDistanceAlongPath(gameObject.transform.position);
         priorPosition = gameObject.transform.position;
     }
-
-    /*
-        public void setAnimTrigger(string triggerName)
-        {
-            Debug.Log("Setting Anim Trigger: " + triggerName);
-            //setTriggers.Add(triggerName);
-            playerAnimator.SetTrigger(triggerName);
-        }
-    */
 
     string currentAnimation = "";
     public void setCurrentAnimation(string animName)
@@ -197,8 +196,7 @@ public class PC_FPSController : MonoBehaviour
     //because there are a couple of different runs this is important for sending calls through as necessary. For the moment we're just going to be dumb
     public void checkRunAnim()
     {
-        //setCurrentAnimation("Run_Fast");
-        setCurrentAnimation("Run_Standard");
+        setCurrentAnimation("RunBlends");
     }
 
 
@@ -250,6 +248,7 @@ public class PC_FPSController : MonoBehaviour
     {
         characterController.height = controllerHeight * toThis;
         playerCamera.transform.localPosition = Vector3.Lerp(Vector3.zero, cameraStartPosition, toThis);
+        characterPosition.transform.localPosition = Vector3.Lerp(Vector3.zero, characterPositionStart, toThis);
     }
 
     public void HandleControllerScale()
@@ -281,7 +280,7 @@ public class PC_FPSController : MonoBehaviour
         //So I think I need a new approach. We'll get the time to kick off with, and then go off of distance with a guess based off of how fast we're travelling, and a bit of wriggle ahead/behind then take the closest as gospel
         float distanceGuess = bestDistance + flatMoveDistance;// * Time.deltaTime;
         bestDistance = distanceGuess;
-        float bestDistanceSpan = Vector3.SqrMagnitude(gameObject.transform.position-pathCreator.path.GetPointAtDistance(distanceGuess));
+        bestDistanceSpan = Vector3.SqrMagnitude(gameObject.transform.position-pathCreator.path.GetPointAtDistance(distanceGuess));
 
         float distanceRange = moveSpeed * Time.deltaTime *0.5f; //how far we'll shift with each check. This should be self-correcting
         for (int i = -1; i<2; i++)
@@ -318,6 +317,25 @@ public class PC_FPSController : MonoBehaviour
         float calcMoveSpeed = boostTime > 0 ? boostSpeed : runningSpeed;    //Take into account our boost but still allow for slowing our player
 
         moveSpeed = Mathf.Lerp(slowSpeed, calcMoveSpeed, Mathf.Clamp01(Input.GetAxis("Vertical") + 1f));
+        
+        if (bIsGrounded())
+        {
+            //Handle our runspeed details. This'll also have to affect our actual movement speed
+            if (groundObject && groundObject.GetComponent<Terrain>() != null) //Because this is square distance. Essentially we're trying to see when we're in the grass
+            {
+                targetRunType = 0;
+                moveSpeed = slowSpeed;  //Slow us down because we're in the grass
+            }
+            else
+            {
+                targetRunType = Mathf.Lerp(1f/3f, 2f/3f, Mathf.Clamp01(Input.GetAxis("Vertical") + 1f));
+            }            
+        }
+
+        runType = Mathf.Lerp(runType, targetRunType, Time.deltaTime * 2f);  //So that our shifts aren't jarring
+
+        playerAnimator.SetFloat("RunSpeedMultiplier", RunScaleRange.GetLerp(runType));
+        playerAnimator.SetFloat("RunType", runType);
 
         float curSpeedX = moveSpeed;
         float curSpeedY = strafeSpeed * Input.GetAxis("Horizontal") + SideMomentum; //So we can move extra fast if we've done a side kick. What should our air control be?
@@ -379,6 +397,15 @@ public class PC_FPSController : MonoBehaviour
             return false;
         }
         return true;
+    }
+
+    [HideInInspector]
+    GameObject groundObject = null;
+
+    void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (hit.normal.y > 0.9f)    //Change if we want incline
+            groundObject = hit.collider.gameObject;
     }
 
     public bool bIsGrounded()
@@ -452,9 +479,9 @@ public class PC_FPSController : MonoBehaviour
         if (Physics.Raycast(mantleGrabLip, -Vector3.up * mantleGrabHeight, out hit, mantleGrabHeight, worldRaycastMask))
         {
             
-            Debug.DrawLine(transform.position, transform.position + Vector3.up * mantleGrabHeight, Color.red, 15f);
-            Debug.DrawLine(mantleGrabReach, mantleGrabReach + Char_Forward * mantleGrabDepth, Color.red, 15f);
-            Debug.DrawLine(mantleGrabLip, hit.point, Color.red, 15f);
+            //Debug.DrawLine(transform.position, transform.position + Vector3.up * mantleGrabHeight, Color.red, 15f);
+            //Debug.DrawLine(mantleGrabReach, mantleGrabReach + Char_Forward * mantleGrabDepth, Color.red, 15f);
+            //Debug.DrawLine(mantleGrabLip, hit.point, Color.red, 15f);
             //Debug.Log(hit.collider.gameObject.name);
             
             
@@ -542,6 +569,8 @@ public class PC_FPSController : MonoBehaviour
         //Because our character body keeps drifting with animations...
         playerAnimator.transform.localPosition = Vector3.Lerp(playerAnimator.transform.localPosition, Vector3.zero, Time.deltaTime);
         playerAnimator.transform.localRotation = Quaternion.Slerp(playerAnimator.transform.localRotation, Quaternion.identity, Time.deltaTime);
+
+
     }
 
     void AdjustFollowDisplay() {
