@@ -557,6 +557,7 @@ public class PC_FPSController : MonoBehaviour
         stumbleTime = stumbleMax;
         boostTime = 0; //Getting hit cancels our bost
         setCurrentAnimation("Hit_Left");    //Our hits need a special handler as technically they're grounded
+        //setCurrentAnimation("Hit_Guard");
     }
 
     #region BoostFunctions
