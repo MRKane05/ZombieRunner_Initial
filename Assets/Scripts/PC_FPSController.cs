@@ -76,6 +76,9 @@ public class PC_FPSController : MonoBehaviour
     //We need something to give us speed boosts
     [HideInInspector]
     public float boostTime = 0;         //How much is left on our boost?
+    //Details for our dodging
+    float dodgeTime = 0;         //How much time is left in our dodge?
+    float dodgeDirection = 1;
     [HideInInspector]
     public float jumpReleaseTime = 0;   //What time did we release jump?
     [HideInInspector]
@@ -208,7 +211,6 @@ public class PC_FPSController : MonoBehaviour
 #else
         return Input.GetButtonDown("Left Shoulder");
 #endif
-        //return Input.GetButtonDown("Jump");
     }
 
     public bool bJumpHeld()
@@ -308,13 +310,18 @@ public class PC_FPSController : MonoBehaviour
     public void DoFlatMove()
     {
         if (bPlayerDead) {return;}
-        //PROBLEM: This will need to be replaced with a curve sample for our direction
+
         Vector3 forward = getForwardDirection(); // transform.TransformDirection(Vector3.forward);
         Vector3 right = Quaternion.AngleAxis(90f, Vector3.up)*forward; //transform.TransformDirection(Vector3.right);
 
         bool addEffort = bAddEffort();
         boostTime -= Time.deltaTime;    //PROBLEM: This needs refactoring - Tick our boost speed down
+        dodgeTime -= Time.deltaTime;    //Tick down our dodge
         float calcMoveSpeed = boostTime > 0 ? boostSpeed : runningSpeed;    //Take into account our boost but still allow for slowing our player
+        if (dodgeTime > 0)  //We're slow and dodging to the side. There's temp invincibility
+        {
+            calcMoveSpeed = slowSpeed;
+        }
 
         moveSpeed = Mathf.Lerp(slowSpeed, calcMoveSpeed, Mathf.Clamp01(Input.GetAxis("Vertical") + 1f));
         
@@ -339,7 +346,10 @@ public class PC_FPSController : MonoBehaviour
 
         float curSpeedX = moveSpeed;
         float curSpeedY = strafeSpeed * Input.GetAxis("Horizontal") + SideMomentum; //So we can move extra fast if we've done a side kick. What should our air control be?
-
+        if (dodgeTime > 0)
+        {
+            curSpeedY = boostSpeed * dodgeDirection; //Do we worry about the SideMomentum?
+        }
         //Vita Control injection      
 #if !UNITY_EDITOR
         moveSpeed = Mathf.Lerp(slowSpeed, calcMoveSpeed, Mathf.Clamp01(Input.GetAxis("Left Stick Vertical") +1f));  
@@ -617,6 +627,17 @@ public class PC_FPSController : MonoBehaviour
             boostTime = 0;
         }
         boostTime += extraboostTime;
+    }
+
+    public void PlayerDodge(float newDodgeTime, float newDodgeDirection)
+    {
+        if (dodgeTime < 0)
+        {
+            dodgeTime = 0;
+        }
+        dodgeTime += newDodgeTime;
+        dodgeDirection = newDodgeDirection;
+        Debug.Log("Doing Dodge");
     }
     #endregion
 

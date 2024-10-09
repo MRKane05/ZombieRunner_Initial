@@ -15,7 +15,16 @@ public class PC_RunState : PC_BaseState {
         {
 			baseController.DoFall(true, 1f);
 			baseController.setCurrentAnimation("Fall_Idle");
+        } else
+        {
+			//We can check to see if we can dodge here
+			if (Input.GetButtonDown("Circle") || Input.GetKeyDown(KeyCode.LeftShift))
+            {
+				baseController.PlayerDodge(0.5f, Mathf.Sign(Input.GetAxis("Horizontal")));   //Use our stick to pick which direction we're going to dodge in
+			}
         }
+
+
 
 		CheckSwitchState();
 	}
