@@ -26,12 +26,15 @@ public class PC_FPSController : MonoBehaviour
     public float PlayerLeadTime = 3f;
 
     bool bClimbing = false;
+    float player_Stamina = 100f;
+
     [Space]
     [Header("Player Speed Settings")]
     public Animator playerAnimator;
     public GameObject characterPosition;
     public float slowSpeed = 7.5f;
     public float runningSpeed = 11.5f;
+    public float sprintingSpeed = 10f;
     public float boostSpeed = 15f;
 
     public float strafeSpeed = 9f;
@@ -77,6 +80,9 @@ public class PC_FPSController : MonoBehaviour
     [HideInInspector]
     public float boostTime = 0;         //How much is left on our boost?
     //Details for our dodging
+    Range staminaRegain = new Range(25, 12); //So if we slow down we can regain all our stamina in 4 seconds, but flat out we'll take 8
+    float dodgeStaminaCost = 18f;
+    float sprintStaminaCost = 20f;
     float dodgeTime = 0;         //How much time is left in our dodge?
     float dodgeDirection = 1;
     [HideInInspector]
@@ -193,13 +199,17 @@ public class PC_FPSController : MonoBehaviour
         {
             currentAnimation = animName;
             playerAnimator.CrossFade(animName, 0.25f, 0);
+            Debug.Log("SetAnimation: " + animName);
         }
     }
 
     //because there are a couple of different runs this is important for sending calls through as necessary. For the moment we're just going to be dumb
     public void checkRunAnim()
     {
-        setCurrentAnimation("RunBlends");
+        if (dodgeTime <= 0)
+        {
+            setCurrentAnimation("RunBlends");
+        }
     }
 
 
@@ -321,6 +331,17 @@ public class PC_FPSController : MonoBehaviour
         if (dodgeTime > 0)  //We're slow and dodging to the side. There's temp invincibility
         {
             calcMoveSpeed = slowSpeed;
+        } else
+        {
+            //Quick handler for sprinting
+            if (characterController.isGrounded)
+            {
+                if (bAddEffort() && player_Stamina > 0f)
+                {
+                    calcMoveSpeed = sprintingSpeed;
+                    changeStamina(-sprintStaminaCost * Time.deltaTime);
+                }
+            }
         }
 
         moveSpeed = Mathf.Lerp(slowSpeed, calcMoveSpeed, Mathf.Clamp01(Input.GetAxis("Vertical") + 1f));
@@ -335,8 +356,15 @@ public class PC_FPSController : MonoBehaviour
             }
             else
             {
-                targetRunType = Mathf.Lerp(1f/3f, 2f/3f, Mathf.Clamp01(Input.GetAxis("Vertical") + 1f));
-            }            
+                if (bAddEffort() && player_Stamina > 0f)    //frustrating that this has to be handled twice...
+                {
+                    targetRunType = 1f; //Our flat out sprint
+                }
+                else
+                {
+                    targetRunType = Mathf.Lerp(1f / 3f, 2f / 3f, Mathf.Clamp01(Input.GetAxis("Vertical") + 1f));
+                }
+            }
         }
 
         runType = Mathf.Lerp(runType, targetRunType, Time.deltaTime * 2f);  //So that our shifts aren't jarring
@@ -355,11 +383,16 @@ public class PC_FPSController : MonoBehaviour
         moveSpeed = Mathf.Lerp(slowSpeed, calcMoveSpeed, Mathf.Clamp01(Input.GetAxis("Left Stick Vertical") +1f));  
         curSpeedY = strafeSpeed * Input.GetAxis("Left Stick Horizontal") + SideMomentum; //So we can move extra fast if we've done a side kick. What should our air control be?
 #endif
-
         //Add in our stumble effect
         float stumbleValue = GetStumbleValue();
         curSpeedX *= stumbleValue;
         curSpeedY *= stumbleValue;
+
+        //See about handling our Stamina :)
+        if (characterController.isGrounded && dodgeTime <= 0 && !bAddEffort()) //&& we're not sprinting...
+        {
+            changeStamina(staminaRegain.GetLerp(Mathf.Clamp01(Input.GetAxis("Vertical") + 1f))*Time.deltaTime);
+        }
 
         //We need to check our speed and adjust our leadTime accordingly
         //PROBLEM: This lead timer doesn't take into account actual movement, and any cool stuff we might be doing with Parkour
@@ -629,15 +662,29 @@ public class PC_FPSController : MonoBehaviour
         boostTime += extraboostTime;
     }
 
-    public void PlayerDodge(float newDodgeTime, float newDodgeDirection)
+    public void changeStamina(float byThis)
     {
+        player_Stamina = Mathf.Clamp(player_Stamina + byThis, 0f, 100f);
+        PlayerHUDHandler.Instance.setStaminaBar(player_Stamina / 100f);
+    }
+
+    public bool PlayerDodge(float newDodgeTime, float newDodgeDirection)
+    {
+        if (player_Stamina < dodgeStaminaCost)
+        {
+            Debug.Log("Not enough stamina to dodget");
+            return false; //We don't want to be able to let the player do a dodge
+        }
         if (dodgeTime < 0)
         {
             dodgeTime = 0;
         }
+        Debug.Log("Dodging");
         dodgeTime += newDodgeTime;
         dodgeDirection = newDodgeDirection;
-        Debug.Log("Doing Dodge");
+        changeStamina(-dodgeStaminaCost);
+        setCurrentAnimation("Arms_Guard");	//Show that we're doing something visual here
+        return true;
     }
     #endregion
 

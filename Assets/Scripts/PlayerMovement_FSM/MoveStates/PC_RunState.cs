@@ -18,9 +18,13 @@ public class PC_RunState : PC_BaseState {
         } else
         {
 			//We can check to see if we can dodge here
-			if (Input.GetButtonDown("Circle") || Input.GetKeyDown(KeyCode.LeftShift))
+			if (Input.GetButtonDown("Circle") || Input.GetKeyDown(KeyCode.C))
             {
+#if UNITY_EDITOR
 				baseController.PlayerDodge(0.5f, Mathf.Sign(Input.GetAxis("Horizontal")));   //Use our stick to pick which direction we're going to dodge in
+#else
+				baseController.PlayerDodge(0.5f, Mathf.Sign(Input.GetAxis("Left Stick Horizontal")));
+#endif
 			}
         }
 

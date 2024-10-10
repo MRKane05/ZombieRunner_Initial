@@ -148,6 +148,8 @@ ModelImporter:
     7400000: Default Take
     7400002: Hit_Left
     7400004: Hit_Guard
+    7400006: Arns_Guard
+    7400008: Arms_Guard
     9500000: //RootNode
     13700000: Beta_Joints
     13700002: Beta_Surface
@@ -169,81 +171,86 @@ ModelImporter:
     animationImportErrors: 
     animationImportWarnings: "\nClip 'Default Take' has import animation warnings
       that might lower retargeting quality:\nNote: Activate translation DOF on avatar
-      to improve retargeting quality.\n\t'mixamorig_RightHandThumb2' has translation
-      animation that will be discarded.\n\t'mixamorig_RightHandIndex3' has translation
-      animation that will be discarded.\n\t'mixamorig_RightHandMiddle3' has translation
-      animation that will be discarded.\n\t'mixamorig_LeftHandThumb1' has translation
-      animation that will be discarded.\n\t'mixamorig_LeftHandThumb2' has translation
-      animation that will be discarded.\n\t'mixamorig_LeftHandIndex1' has translation
-      animation that will be discarded.\n\t'mixamorig_LeftHandIndex2' has translation
-      animation that will be discarded.\n\t'mixamorig_LeftHandIndex3' has translation
-      animation that will be discarded.\n\t'mixamorig_LeftHandMiddle2' has translation
-      animation that will be discarded.\n\t'mixamorig_LeftHandRing2' has translation
-      animation that will be discarded.\n\t'mixamorig_LeftHandPinky2' has translation
-      animation that will be discarded.\n\t'mixamorig_LeftHandPinky3' has translation
-      animation that will be discarded.\n\t'mixamorig_RightUpLeg' has scale animation
+      to improve retargeting quality.\n\t'mixamorig_RightUpLeg' has scale animation
       that will be discarded.\n\t'mixamorig_RightFoot' has translation animation that
       will be discarded.\n\t'mixamorig_RightToeBase' has translation animation that
       will be discarded.\n\t'mixamorig_LeftUpLeg' has scale animation that will be
-      discarded.\n\t'mixamorig_LeftLeg' has translation animation that will be discarded.\n\t'mixamorig_LeftFoot'
-      has translation animation that will be discarded.\n\t'mixamorig_LeftToeBase'
-      has translation animation that will be discarded.\n\nClip 'Hit_Guard' has import
+      discarded.\n\t'mixamorig_LeftLeg' has translation animation that will be discarded.\n\t'mixamorig_LeftToeBase'
+      has translation animation that will be discarded.\n\nClip 'Arms_Guard' has import
       animation warnings that might lower retargeting quality:\nNote: Activate translation
-      DOF on avatar to improve retargeting quality.\n\t'mixamorig_RightHandThumb2'
-      has translation animation that will be discarded.\n\t'mixamorig_RightHandIndex3'
-      has translation animation that will be discarded.\n\t'mixamorig_RightHandMiddle3'
-      has translation animation that will be discarded.\n\t'mixamorig_LeftHandThumb1'
-      has translation animation that will be discarded.\n\t'mixamorig_LeftHandThumb2'
-      has translation animation that will be discarded.\n\t'mixamorig_LeftHandIndex1'
-      has translation animation that will be discarded.\n\t'mixamorig_LeftHandIndex2'
-      has translation animation that will be discarded.\n\t'mixamorig_LeftHandIndex3'
-      has translation animation that will be discarded.\n\t'mixamorig_LeftHandMiddle2'
-      has translation animation that will be discarded.\n\t'mixamorig_LeftHandRing2'
-      has translation animation that will be discarded.\n\t'mixamorig_LeftHandPinky2'
-      has translation animation that will be discarded.\n\t'mixamorig_LeftHandPinky3'
-      has translation animation that will be discarded.\n\t'mixamorig_RightUpLeg'
-      has scale animation that will be discarded.\n\t'mixamorig_RightFoot' has translation
+      DOF on avatar to improve retargeting quality.\n\t'mixamorig_RightUpLeg' has
+      scale animation that will be discarded.\n\t'mixamorig_RightFoot' has translation
       animation that will be discarded.\n\t'mixamorig_RightToeBase' has translation
       animation that will be discarded.\n\t'mixamorig_LeftUpLeg' has scale animation
       that will be discarded.\n\t'mixamorig_LeftLeg' has translation animation that
-      will be discarded.\n\t'mixamorig_LeftFoot' has translation animation that will
-      be discarded.\n\t'mixamorig_LeftToeBase' has translation animation that will
-      be discarded.\n\nClip 'Hit_Left' has import animation warnings that might lower
-      retargeting quality:\nNote: Activate translation DOF on avatar to improve retargeting
-      quality.\n\t'mixamorig_RightForeArm' has translation animation that will be
-      discarded.\n\t'mixamorig_RightHand' has translation animation that will be discarded.\n\t'mixamorig_RightHandThumb1'
-      has translation animation that will be discarded.\n\t'mixamorig_RightHandThumb2'
-      has translation animation that will be discarded.\n\t'mixamorig_RightHandIndex1'
-      has translation animation that will be discarded.\n\t'mixamorig_RightHandIndex2'
-      has translation animation that will be discarded.\n\t'mixamorig_RightHandIndex3'
-      has translation animation that will be discarded.\n\t'mixamorig_RightHandMiddle1'
-      has translation animation that will be discarded.\n\t'mixamorig_RightHandMiddle2'
-      has translation animation that will be discarded.\n\t'mixamorig_RightHandRing1'
-      has translation animation that will be discarded.\n\t'mixamorig_RightHandRing2'
-      has translation animation that will be discarded.\n\t'mixamorig_RightHandPinky1'
-      has translation animation that will be discarded.\n\t'mixamorig_RightHandPinky2'
-      has translation animation that will be discarded.\n\t'mixamorig_RightHandPinky3'
-      has translation animation that will be discarded.\n\t'mixamorig_LeftHandThumb1'
-      has translation animation that will be discarded.\n\t'mixamorig_LeftHandThumb2'
-      has translation animation that will be discarded.\n\t'mixamorig_LeftHandThumb3'
-      has translation animation that will be discarded.\n\t'mixamorig_LeftHandIndex1'
-      has translation animation that will be discarded.\n\t'mixamorig_LeftHandIndex3'
-      has translation animation that will be discarded.\n\t'mixamorig_LeftHandMiddle1'
-      has translation animation that will be discarded.\n\t'mixamorig_LeftHandMiddle2'
-      has translation animation that will be discarded.\n\t'mixamorig_LeftHandMiddle3'
-      has translation animation that will be discarded.\n\t'mixamorig_LeftHandRing1'
-      has translation animation that will be discarded.\n\t'mixamorig_LeftHandRing2'
-      has translation animation that will be discarded.\n\t'mixamorig_LeftHandPinky1'
-      has translation animation that will be discarded.\n\t'mixamorig_LeftHandPinky2'
-      has translation animation that will be discarded.\n\t'mixamorig_LeftHandPinky3'
-      has translation animation that will be discarded.\n\t'mixamorig_RightUpLeg'
-      has scale animation that will be discarded.\n\t'mixamorig_RightFoot' has translation
-      animation that will be discarded.\n\t'mixamorig_RightToeBase' has translation
-      animation that will be discarded.\n\t'mixamorig_LeftUpLeg' has scale animation
-      that will be discarded.\n\t'mixamorig_LeftLeg' has translation animation that
-      will be discarded.\n\t'mixamorig_LeftFoot' has translation animation that will
-      be discarded.\n\t'mixamorig_LeftToeBase' has translation animation that will
-      be discarded.\n"
+      will be discarded.\n\t'mixamorig_LeftToeBase' has translation animation that
+      will be discarded.\n\nClip 'Hit_Guard' has import animation warnings that might
+      lower retargeting quality:\nNote: Activate translation DOF on avatar to improve
+      retargeting quality.\n\t'mixamorig_RightHand' has translation animation that
+      will be discarded.\n\t'mixamorig_RightHandThumb1' has translation animation
+      that will be discarded.\n\t'mixamorig_RightHandThumb2' has translation animation
+      that will be discarded.\n\t'mixamorig_RightHandThumb3' has translation animation
+      that will be discarded.\n\t'mixamorig_RightHandIndex1' has translation animation
+      that will be discarded.\n\t'mixamorig_RightHandIndex2' has translation animation
+      that will be discarded.\n\t'mixamorig_RightHandIndex3' has translation animation
+      that will be discarded.\n\t'mixamorig_RightHandMiddle1' has translation animation
+      that will be discarded.\n\t'mixamorig_RightHandMiddle2' has translation animation
+      that will be discarded.\n\t'mixamorig_RightHandMiddle3' has translation animation
+      that will be discarded.\n\t'mixamorig_RightHandRing1' has translation animation
+      that will be discarded.\n\t'mixamorig_RightHandRing2' has translation animation
+      that will be discarded.\n\t'mixamorig_RightHandPinky1' has translation animation
+      that will be discarded.\n\t'mixamorig_RightHandPinky2' has translation animation
+      that will be discarded.\n\t'mixamorig_RightHandPinky3' has translation animation
+      that will be discarded.\n\t'mixamorig_LeftHandIndex1' has translation animation
+      that will be discarded.\n\t'mixamorig_LeftHandIndex2' has translation animation
+      that will be discarded.\n\t'mixamorig_LeftHandMiddle1' has translation animation
+      that will be discarded.\n\t'mixamorig_LeftHandMiddle2' has translation animation
+      that will be discarded.\n\t'mixamorig_LeftHandRing2' has translation animation
+      that will be discarded.\n\t'mixamorig_LeftHandRing3' has translation animation
+      that will be discarded.\n\t'mixamorig_LeftHandPinky1' has translation animation
+      that will be discarded.\n\t'mixamorig_LeftHandPinky2' has translation animation
+      that will be discarded.\n\t'mixamorig_RightUpLeg' has scale animation that will
+      be discarded.\n\t'mixamorig_RightFoot' has translation animation that will be
+      discarded.\n\t'mixamorig_RightToeBase' has translation animation that will be
+      discarded.\n\t'mixamorig_LeftUpLeg' has scale animation that will be discarded.\n\t'mixamorig_LeftFoot'
+      has translation animation that will be discarded.\n\t'mixamorig_LeftToeBase'
+      has translation animation that will be discarded.\n\nClip 'Hit_Left' has import
+      animation warnings that might lower retargeting quality:\nNote: Activate translation
+      DOF on avatar to improve retargeting quality.\n\t'mixamorig_RightHand' has translation
+      animation that will be discarded.\n\t'mixamorig_RightHandThumb3' has translation
+      animation that will be discarded.\n\t'mixamorig_RightHandIndex1' has translation
+      animation that will be discarded.\n\t'mixamorig_RightHandIndex2' has translation
+      animation that will be discarded.\n\t'mixamorig_RightHandIndex3' has translation
+      animation that will be discarded.\n\t'mixamorig_RightHandMiddle1' has translation
+      animation that will be discarded.\n\t'mixamorig_RightHandMiddle2' has translation
+      animation that will be discarded.\n\t'mixamorig_RightHandMiddle3' has translation
+      animation that will be discarded.\n\t'mixamorig_RightHandRing1' has translation
+      animation that will be discarded.\n\t'mixamorig_RightHandRing2' has translation
+      animation that will be discarded.\n\t'mixamorig_RightHandPinky1' has translation
+      animation that will be discarded.\n\t'mixamorig_RightHandPinky2' has translation
+      animation that will be discarded.\n\t'mixamorig_RightHandPinky3' has translation
+      animation that will be discarded.\n\t'mixamorig_LeftHand' has translation animation
+      that will be discarded.\n\t'mixamorig_LeftHandThumb1' has translation animation
+      that will be discarded.\n\t'mixamorig_LeftHandThumb2' has translation animation
+      that will be discarded.\n\t'mixamorig_LeftHandThumb3' has translation animation
+      that will be discarded.\n\t'mixamorig_LeftHandIndex1' has translation animation
+      that will be discarded.\n\t'mixamorig_LeftHandIndex2' has translation animation
+      that will be discarded.\n\t'mixamorig_LeftHandIndex3' has translation animation
+      that will be discarded.\n\t'mixamorig_LeftHandMiddle1' has translation animation
+      that will be discarded.\n\t'mixamorig_LeftHandMiddle2' has translation animation
+      that will be discarded.\n\t'mixamorig_LeftHandMiddle3' has translation animation
+      that will be discarded.\n\t'mixamorig_LeftHandRing1' has translation animation
+      that will be discarded.\n\t'mixamorig_LeftHandRing2' has translation animation
+      that will be discarded.\n\t'mixamorig_LeftHandRing3' has translation animation
+      that will be discarded.\n\t'mixamorig_LeftHandPinky1' has translation animation
+      that will be discarded.\n\t'mixamorig_LeftHandPinky2' has translation animation
+      that will be discarded.\n\t'mixamorig_LeftHandPinky3' has translation animation
+      that will be discarded.\n\t'mixamorig_RightUpLeg' has scale animation that will
+      be discarded.\n\t'mixamorig_RightFoot' has translation animation that will be
+      discarded.\n\t'mixamorig_RightToeBase' has translation animation that will be
+      discarded.\n\t'mixamorig_LeftUpLeg' has scale animation that will be discarded.\n\t'mixamorig_LeftFoot'
+      has translation animation that will be discarded.\n\t'mixamorig_LeftToeBase'
+      has translation animation that will be discarded.\n"
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
     importAnimatedCustomProperties: 0
@@ -317,6 +324,34 @@ ModelImporter:
       takeName: Hit_Left
       firstFrame: 0
       lastFrame: 55
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Arms_Guard
+      takeName: Arms_Guard
+      firstFrame: 0
+      lastFrame: 19
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
