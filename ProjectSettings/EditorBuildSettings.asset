@@ -11,10 +11,13 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/SetupScene.unity
     guid: 5f51511bbecc8d840879bd3798c24d4f
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/RoadSetup_Terrain.unity
     guid: de0ddbe463cb73f478479d808873ef91
   - enabled: 0
     path: Assets/Scenes/RoadSetup_NoTerrain.unity
     guid: d68698f43a49d5a4685461f1b85cbcb7
+  - enabled: 1
+    path: Assets/Scenes/RoadSetup_Terrain_HeadOriented.unity
+    guid: 2acc5a464950219498faafa4db0d4699
   m_configObjects: {}
