@@ -35,6 +35,7 @@ public class PC_FPSController : MonoBehaviour
     public float slowSpeed = 7.5f;
     public float runningSpeed = 11.5f;
     public float sprintingSpeed = 10f;
+    bool bIsSprinting = false;
     public float boostSpeed = 15f;
 
     public float strafeSpeed = 9f;
@@ -250,7 +251,8 @@ public class PC_FPSController : MonoBehaviour
 
     public bool bAddEffort()
     {
-        return Input.GetKey(KeyCode.LeftShift);
+        bIsSprinting = Input.GetKey(KeyCode.LeftShift) || Input.GetButton("Cross");
+        return bIsSprinting;
     }
     #endregion
 
@@ -321,13 +323,14 @@ public class PC_FPSController : MonoBehaviour
     {
         if (bPlayerDead) {return;}
 
-        Vector3 forward = getForwardDirection(); // transform.TransformDirection(Vector3.forward);
-        Vector3 right = Quaternion.AngleAxis(90f, Vector3.up)*forward; //transform.TransformDirection(Vector3.right);
+        Vector3 forward = getForwardDirection(); 
+        Vector3 right = Quaternion.AngleAxis(90f, Vector3.up)*forward; 
 
         bool addEffort = bAddEffort();
         boostTime -= Time.deltaTime;    //PROBLEM: This needs refactoring - Tick our boost speed down
         dodgeTime -= Time.deltaTime;    //Tick down our dodge
         float calcMoveSpeed = boostTime > 0 ? boostSpeed : runningSpeed;    //Take into account our boost but still allow for slowing our player
+        
         if (dodgeTime > 0)  //We're slow and dodging to the side. There's temp invincibility
         {
             calcMoveSpeed = slowSpeed;
@@ -340,6 +343,12 @@ public class PC_FPSController : MonoBehaviour
                 {
                     calcMoveSpeed = sprintingSpeed;
                     changeStamina(-sprintStaminaCost * Time.deltaTime);
+                }
+            } else
+            {
+                if (bIsSprinting && currentState is PC_Airbourne)
+                {
+                    calcMoveSpeed = sprintingSpeed; //So that we can maintain sprinting speed after we've done a jump
                 }
             }
         }
